@@ -20,6 +20,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.nhom4.hotelbooking.R;
 import com.nhom4.hotelbooking.adapters.AdminBookingAdapter;
 import com.nhom4.hotelbooking.adapters.AdminRoomAdapter;
+import com.nhom4.hotelbooking.adapters.ChatConversationAdapter;
 import com.nhom4.hotelbooking.database.DatabaseHelper;
 import com.nhom4.hotelbooking.models.Booking;
 import com.nhom4.hotelbooking.models.Room;
@@ -27,13 +28,13 @@ import com.nhom4.hotelbooking.utils.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class AdminHomeActivity extends AppCompatActivity {
 
     Toolbar toolbarAdmin;
     TabLayout tabLayout;
     FloatingActionButton fabAddRoom;
-    RecyclerView recyclerAdminRooms;
 
     FirebaseFirestore db;
     FirebaseAuth mAuth;
@@ -41,9 +42,11 @@ public class AdminHomeActivity extends AppCompatActivity {
 
     AdminRoomAdapter roomAdapter;
     AdminBookingAdapter bookingAdapter;
+    ChatConversationAdapter chatAdapter;
 
     List<Room> roomList;
     List<Booking> bookingList;
+    List<Map<String, Object>> conversationList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,9 +68,54 @@ public class AdminHomeActivity extends AppCompatActivity {
 
         roomList = new ArrayList<>();
         bookingList = new ArrayList<>();
+        conversationList = new ArrayList<>();
 
-        recyclerAdminRooms = new RecyclerView(this);
-        recyclerAdminRooms.setLayoutManager(new LinearLayoutManager(this));
+        tabLayout.addTab(tabLayout.newTab().setText("Phòng"));
+        tabLayout.addTab(tabLayout.newTab().setText("Booking"));
+        tabLayout.addTab(tabLayout.newTab().setText("Chat"));
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition() == 0) {
+                    fabAddRoom.show();
+                    loadRooms();
+                } else if (tab.getPosition() == 1) {
+                    fabAddRoom.hide();
+                    loadBookings();
+                } else if (tab.getPosition() == 2) {
+                    fabAddRoom.hide();
+                    loadChats();
+                }
+            }
+
+            @Override public void onTabUnselected(TabLayout.Tab tab) {}
+            @Override public void onTabReselected(TabLayout.Tab tab) {}
+        });
+
+        fabAddRoom.setOnClickListener(v ->
+                startActivity(new Intent(this, AdminAddEditRoomActivity.class))
+        );
+
+        loadRooms();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        int pos = tabLayout.getSelectedTabPosition();
+        if (pos == 0) loadRooms();
+        else if (pos == 1) loadBookings();
+        else if (pos == 2) loadChats();
+    }
+
+    // ================= ROOMS =================
+    void loadRooms() {
+        android.widget.FrameLayout frame = findViewById(R.id.frameAdmin);
+        frame.removeAllViews();
+
+        RecyclerView recycler = new RecyclerView(this);
+        recycler.setLayoutManager(new LinearLayoutManager(this));
 
         roomAdapter = new AdminRoomAdapter(roomList, new AdminRoomAdapter.OnAdminRoomActionListener() {
             @Override
@@ -82,73 +130,34 @@ public class AdminHomeActivity extends AppCompatActivity {
                 new AlertDialog.Builder(AdminHomeActivity.this)
                         .setTitle("Xác nhận xoá")
                         .setMessage("Bạn có chắc muốn xoá phòng " + room.getName() + "?")
-                        .setPositiveButton("Xoá", (dialog, which) -> deleteRoom(room))
+                        .setPositiveButton("Xoá", (d, w) -> deleteRoom(room))
                         .setNegativeButton("Huỷ", null)
                         .show();
             }
         });
-        recyclerAdminRooms.setAdapter(roomAdapter);
-        ((android.widget.FrameLayout) findViewById(R.id.frameAdmin)).addView(recyclerAdminRooms);
 
-        tabLayout.addTab(tabLayout.newTab().setText("Phòng"));
-        tabLayout.addTab(tabLayout.newTab().setText("Booking"));
-
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                if (tab.getPosition() == 0) {
-                    fabAddRoom.show();
-                    loadRooms();
-                } else {
-                    fabAddRoom.hide();
-                    loadBookings();
-                }
-            }
-            @Override public void onTabUnselected(TabLayout.Tab tab) {}
-            @Override public void onTabReselected(TabLayout.Tab tab) {}
-        });
-
-        fabAddRoom.setOnClickListener(v -> {
-            startActivity(new Intent(AdminHomeActivity.this, AdminAddEditRoomActivity.class));
-        });
-
-        loadRooms();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (tabLayout.getSelectedTabPosition() == 0) {
-            loadRooms();
-        }
-    }
-
-    void loadRooms() {
-        android.widget.FrameLayout frame = findViewById(R.id.frameAdmin);
-        frame.removeAllViews();
-        recyclerAdminRooms = new RecyclerView(this);
-        recyclerAdminRooms.setLayoutManager(new LinearLayoutManager(this));
-        recyclerAdminRooms.setAdapter(roomAdapter);
-        frame.addView(recyclerAdminRooms);
+        recycler.setAdapter(roomAdapter);
+        frame.addView(recycler);
 
         db.collection(Constants.COLLECTION_ROOMS).get()
-                .addOnSuccessListener(querySnapshots -> {
+                .addOnSuccessListener(snap -> {
                     roomList.clear();
-                    for (QueryDocumentSnapshot doc : querySnapshots) {
-                        Room room = doc.toObject(Room.class);
-                        room.setId(doc.getId());
-                        roomList.add(room);
+                    for (QueryDocumentSnapshot doc : snap) {
+                        Room r = doc.toObject(Room.class);
+                        r.setId(doc.getId());
+                        roomList.add(r);
                     }
                     roomAdapter.notifyDataSetChanged();
                 });
     }
 
+    // ================= BOOKINGS =================
     void loadBookings() {
         android.widget.FrameLayout frame = findViewById(R.id.frameAdmin);
         frame.removeAllViews();
 
-        RecyclerView recyclerBookings = new RecyclerView(this);
-        recyclerBookings.setLayoutManager(new LinearLayoutManager(this));
+        RecyclerView recycler = new RecyclerView(this);
+        recycler.setLayoutManager(new LinearLayoutManager(this));
 
         bookingAdapter = new AdminBookingAdapter(bookingList,
                 new AdminBookingAdapter.OnAdminBookingActionListener() {
@@ -163,45 +172,84 @@ public class AdminHomeActivity extends AppCompatActivity {
                     }
                 });
 
-        recyclerBookings.setAdapter(bookingAdapter);
-        frame.addView(recyclerBookings);
+        recycler.setAdapter(bookingAdapter);
+        frame.addView(recycler);
 
         db.collection(Constants.COLLECTION_BOOKINGS).get()
-                .addOnSuccessListener(querySnapshots -> {
+                .addOnSuccessListener(snap -> {
                     bookingList.clear();
-                    for (QueryDocumentSnapshot doc : querySnapshots) {
-                        Booking booking = doc.toObject(Booking.class);
-                        booking.setId(doc.getId());
-                        bookingList.add(booking);
+                    for (QueryDocumentSnapshot doc : snap) {
+                        Booking b = doc.toObject(Booking.class);
+                        b.setId(doc.getId());
+                        bookingList.add(b);
                     }
                     bookingAdapter.notifyDataSetChanged();
                 });
     }
 
+    // ================= CHATS =================
+    void loadChats() {
+        android.widget.FrameLayout frame = findViewById(R.id.frameAdmin);
+        frame.removeAllViews();
+
+        conversationList = new ArrayList<>();
+
+        RecyclerView recyclerChats = new RecyclerView(this);
+        recyclerChats.setLayoutManager(new LinearLayoutManager(this));
+
+        chatAdapter = new ChatConversationAdapter(conversationList,
+                (userId, userName) -> {
+                    Intent intent = new Intent(this, AdminChatDetailActivity.class);
+                    intent.putExtra(Constants.EXTRA_USER_ID, userId);
+                    intent.putExtra(Constants.EXTRA_USER_NAME, userName);
+                    startActivity(intent);
+                });
+
+        recyclerChats.setAdapter(chatAdapter);
+        frame.addView(recyclerChats);
+
+        db.collection(Constants.COLLECTION_CHATS)
+                .orderBy("lastMessageTime", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                .addSnapshotListener((snap, e) -> {
+                    if (e != null || snap == null) return;
+                    conversationList.clear();
+                    for (QueryDocumentSnapshot doc : snap) {
+                        conversationList.add(doc.getData());
+                    }
+                    chatAdapter.notifyDataSetChanged();
+                });
+    }
+
+    // ================= HELPERS =================
     void updateBookingStatus(Booking booking, String newStatus) {
-        db.collection(Constants.COLLECTION_BOOKINGS).document(booking.getId())
+        db.collection(Constants.COLLECTION_BOOKINGS)
+                .document(booking.getId())
                 .update("status", newStatus)
                 .addOnSuccessListener(unused -> {
                     dbHelper.updateBookingStatus(booking.getId(), newStatus);
                     booking.setStatus(newStatus);
                     bookingAdapter.notifyDataSetChanged();
-                    String msg = newStatus.equals(Constants.STATUS_CONFIRMED) ? "Đã duyệt booking" : "Đã huỷ booking";
+                    String msg = newStatus.equals(Constants.STATUS_CONFIRMED)
+                            ? "Đã duyệt booking" : "Đã huỷ booking";
                     Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
                 });
     }
 
     void deleteRoom(Room room) {
+        // Kiểm tra còn booking pending không trước khi xoá
         db.collection(Constants.COLLECTION_BOOKINGS)
                 .whereEqualTo("roomId", room.getId())
                 .whereEqualTo("status", Constants.STATUS_PENDING)
                 .get()
-                .addOnSuccessListener(querySnapshots -> {
-                    if (!querySnapshots.isEmpty()) {
+                .addOnSuccessListener(snap -> {
+                    if (!snap.isEmpty()) {
                         Toast.makeText(this,
-                                "Không thể xoá! Phòng đang có " + querySnapshots.size() + " booking pending",
+                                "Không thể xoá! Phòng đang có " + snap.size() + " booking pending",
                                 Toast.LENGTH_LONG).show();
                     } else {
-                        db.collection(Constants.COLLECTION_ROOMS).document(room.getId()).delete()
+                        db.collection(Constants.COLLECTION_ROOMS)
+                                .document(room.getId())
+                                .delete()
                                 .addOnSuccessListener(unused -> {
                                     Toast.makeText(this, "Đã xoá phòng", Toast.LENGTH_SHORT).show();
                                     loadRooms();
@@ -210,6 +258,7 @@ public class AdminHomeActivity extends AppCompatActivity {
                 });
     }
 
+    // ================= MENU (Làm mới + Đăng xuất) =================
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_admin, menu);
@@ -220,11 +269,10 @@ public class AdminHomeActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.menu_refresh) {
-            if (tabLayout.getSelectedTabPosition() == 0) {
-                loadRooms();
-            } else {
-                loadBookings();
-            }
+            int pos = tabLayout.getSelectedTabPosition();
+            if (pos == 0) loadRooms();
+            else if (pos == 1) loadBookings();
+            else loadChats();
             Toast.makeText(this, "Đã làm mới", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.menu_logout) {
             mAuth.signOut();

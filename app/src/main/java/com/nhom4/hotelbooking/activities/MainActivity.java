@@ -1,5 +1,6 @@
 package com.nhom4.hotelbooking.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -24,18 +25,24 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
+
             if (id == R.id.nav_home) {
                 loadFragment(new HomeFragment());
                 return true;
             } else if (id == R.id.nav_booking) {
                 loadFragment(new BookingHistoryFragment());
                 return true;
+            } else if (id == R.id.nav_chat) {
+                startActivity(new Intent(MainActivity.this, ChatActivity.class));
+                return false;   // ← return false để icon không bị "selected" (vì ta mở Activity riêng)
             } else if (id == R.id.nav_profile) {
                 loadFragment(new ProfileFragment());
                 return true;
             }
             return false;
         });
+
+
     }
 
     void loadFragment(Fragment fragment) {

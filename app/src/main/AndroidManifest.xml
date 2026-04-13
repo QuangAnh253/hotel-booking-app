@@ -24,6 +24,8 @@
         <activity android:name=".activities.AdminHomeActivity" />
         <activity android:name=".activities.AdminAddEditRoomActivity" />
         <activity android:name=".activities.OtpActivity" />
+        <activity android:name=".activities.ChatActivity" />
+        <activity android:name=".activities.AdminChatDetailActivity" />
 
     </application>
 
