@@ -49,6 +49,14 @@
             android:gravity="top"
             android:layout_marginBottom="16dp" />
 
+        <EditText
+            android:id="@+id/edtRoomCapacity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Sức chứa (số người)"
+            android:inputType="number"
+            android:layout_marginBottom="16dp" />
+
         <Button
             android:id="@+id/btnPickImage"
             android:layout_width="match_parent"

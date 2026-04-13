@@ -27,7 +27,7 @@ import java.util.UUID;
 public class AdminAddEditRoomActivity extends AppCompatActivity {
 
     TextView tvAdminFormTitle;
-    EditText edtRoomName, edtRoomType, edtRoomPrice, edtRoomDescription;
+    EditText edtRoomName, edtRoomType, edtRoomPrice, edtRoomDescription, edtRoomCapacity;
     Button btnPickImage, btnSaveRoom;
     ImageView imgPreview;
 
@@ -49,6 +49,7 @@ public class AdminAddEditRoomActivity extends AppCompatActivity {
         edtRoomType = findViewById(R.id.edtRoomType);
         edtRoomPrice = findViewById(R.id.edtRoomPrice);
         edtRoomDescription = findViewById(R.id.edtRoomDescription);
+        edtRoomCapacity = findViewById(R.id.edtRoomCapacity);
         btnPickImage = findViewById(R.id.btnPickImage);
         btnSaveRoom = findViewById(R.id.btnSaveRoom);
         imgPreview = findViewById(R.id.imgPreview);
@@ -75,6 +76,7 @@ public class AdminAddEditRoomActivity extends AppCompatActivity {
             edtRoomType.setText(existingRoom.getType());
             edtRoomPrice.setText(String.valueOf(existingRoom.getPrice()));
             edtRoomDescription.setText(existingRoom.getDescription());
+            edtRoomCapacity.setText(String.valueOf(existingRoom.getCapacity()));
         }
 
         btnPickImage.setOnClickListener(v -> {
@@ -90,24 +92,41 @@ public class AdminAddEditRoomActivity extends AppCompatActivity {
         String priceStr = edtRoomPrice.getText().toString().trim();
         String description = edtRoomDescription.getText().toString().trim();
 
+        int capacity = 0;
+        String capacityStr = edtRoomCapacity.getText().toString().trim();
+        if (!capacityStr.isEmpty()) {
+            try {
+                capacity = Integer.parseInt(capacityStr);
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Sức chứa phải là số", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
         if (name.isEmpty() || type.isEmpty() || priceStr.isEmpty()) {
             Toast.makeText(this, "Vui lòng nhập đầy đủ tên, loại, giá", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        double price = Double.parseDouble(priceStr);
+        double price;
+        try {
+            price = Double.parseDouble(priceStr);
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Giá phải là số", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         if (selectedImageUri != null) {
             // Có chọn ảnh mới → upload lên Storage trước
-            uploadImageThenSave(name, type, price, description);
+            uploadImageThenSave(name, type, price, description, capacity);
         } else {
             // Không chọn ảnh → lưu thẳng (giữ URL cũ nếu đang sửa)
             String imageUrl = (existingRoom != null) ? existingRoom.getImageUrl() : "";
-            saveToFirestore(name, type, price, description, imageUrl);
+            saveToFirestore(name, type, price, description, imageUrl, capacity);
         }
     }
 
-    void uploadImageThenSave(String name, String type, double price, String description) {
+    void uploadImageThenSave(String name, String type, double price, String description, int capacity) {
         Toast.makeText(this, "Đang upload ảnh...", Toast.LENGTH_SHORT).show();
 
         String fileName = "rooms/" + UUID.randomUUID().toString() + ".jpg";
@@ -116,7 +135,8 @@ public class AdminAddEditRoomActivity extends AppCompatActivity {
         ref.putFile(selectedImageUri)
                 .addOnSuccessListener(taskSnapshot -> {
                     ref.getDownloadUrl().addOnSuccessListener(uri -> {
-                        saveToFirestore(name, type, price, description, uri.toString());
+                        // 👉 truyền thêm capacity vào đây
+                        saveToFirestore(name, type, price, description, uri.toString(), capacity);
                     });
                 })
                 .addOnFailureListener(e -> {
@@ -124,7 +144,7 @@ public class AdminAddEditRoomActivity extends AppCompatActivity {
                 });
     }
 
-    void saveToFirestore(String name, String type, double price, String description, String imageUrl) {
+    void saveToFirestore(String name, String type, double price, String description, String imageUrl, int capacity) {
         Map<String, Object> roomData = new HashMap<>();
         roomData.put("name", name);
         roomData.put("type", type);
@@ -132,6 +152,7 @@ public class AdminAddEditRoomActivity extends AppCompatActivity {
         roomData.put("description", description);
         roomData.put("imageUrl", imageUrl);
         roomData.put("status", Constants.STATUS_AVAILABLE);
+        roomData.put("capacity", capacity);
 
         if (existingRoom == null) {
             // Thêm mới

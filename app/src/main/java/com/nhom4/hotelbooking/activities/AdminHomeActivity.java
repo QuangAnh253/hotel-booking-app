@@ -17,6 +17,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.nhom4.hotelbooking.R;
 import com.nhom4.hotelbooking.adapters.AdminRoomAdapter;
+import com.nhom4.hotelbooking.adapters.AdminBookingAdapter;
+import com.nhom4.hotelbooking.database.DatabaseHelper;
+import com.nhom4.hotelbooking.models.Booking;
 import com.nhom4.hotelbooking.models.Room;
 import com.nhom4.hotelbooking.utils.Constants;
 
@@ -33,6 +36,11 @@ public class AdminHomeActivity extends AppCompatActivity {
     AdminRoomAdapter adapter;
     List<Room> roomList;
 
+    // 🔥 THÊM MỚI
+    AdminBookingAdapter bookingAdapter;
+    List<Booking> bookingList;
+    DatabaseHelper dbHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,11 +50,16 @@ public class AdminHomeActivity extends AppCompatActivity {
         fabAddRoom = findViewById(R.id.fabAddRoom);
 
         db = FirebaseFirestore.getInstance();
+
+        // 🔥 THÊM
+        bookingList = new ArrayList<>();
+        dbHelper = new DatabaseHelper(this);
+
         roomList = new ArrayList<>();
 
-        // Tạo RecyclerView động và gắn vào frameAdmin
         recyclerAdminRooms = new RecyclerView(this);
         recyclerAdminRooms.setLayoutManager(new LinearLayoutManager(this));
+
         adapter = new AdminRoomAdapter(roomList, new AdminRoomAdapter.OnAdminRoomActionListener() {
             @Override
             public void onEdit(Room room) {
@@ -65,6 +78,7 @@ public class AdminHomeActivity extends AppCompatActivity {
                         .show();
             }
         });
+
         recyclerAdminRooms.setAdapter(adapter);
         ((android.widget.FrameLayout) findViewById(R.id.frameAdmin)).addView(recyclerAdminRooms);
 
@@ -110,17 +124,80 @@ public class AdminHomeActivity extends AppCompatActivity {
                 });
     }
 
+    // 🔥 REPLACE HOÀN TOÀN
     void loadBookings() {
-        // Chuyển RecyclerView sang hiển thị Booking — đơn giản: dùng Toast báo
-        Toast.makeText(this, "Tab Booking: xem AdminBookingAdapter để mở rộng", Toast.LENGTH_SHORT).show();
-        // (Hướng dẫn mở rộng: tạo AdminBookingAdapter tương tự BookingAdapter nhưng có nút Duyệt/Huỷ)
+        bookingList.clear();
+        recyclerAdminRooms.setAdapter(null);
+
+        RecyclerView recyclerBookings = new RecyclerView(this);
+        recyclerBookings.setLayoutManager(new LinearLayoutManager(this));
+
+        bookingAdapter = new AdminBookingAdapter(bookingList,
+                new AdminBookingAdapter.OnAdminBookingActionListener() {
+                    @Override
+                    public void onApprove(Booking booking) {
+                        updateBookingStatus(booking, Constants.STATUS_CONFIRMED);
+                    }
+
+                    @Override
+                    public void onReject(Booking booking) {
+                        updateBookingStatus(booking, Constants.STATUS_CANCELLED);
+                    }
+                });
+
+        recyclerBookings.setAdapter(bookingAdapter);
+
+        android.widget.FrameLayout frame = findViewById(R.id.frameAdmin);
+        frame.removeAllViews();
+        frame.addView(recyclerBookings);
+
+        db.collection(Constants.COLLECTION_BOOKINGS).get()
+                .addOnSuccessListener(querySnapshots -> {
+                    bookingList.clear();
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
+                        Booking booking = doc.toObject(Booking.class);
+                        booking.setId(doc.getId());
+                        bookingList.add(booking);
+                    }
+                    bookingAdapter.notifyDataSetChanged();
+                });
     }
 
-    void deleteRoom(Room room) {
-        db.collection(Constants.COLLECTION_ROOMS).document(room.getId()).delete()
+    // 🔥 THÊM MỚI
+    void updateBookingStatus(Booking booking, String newStatus) {
+        db.collection(Constants.COLLECTION_BOOKINGS).document(booking.getId())
+                .update("status", newStatus)
                 .addOnSuccessListener(unused -> {
-                    Toast.makeText(this, "Đã xoá phòng", Toast.LENGTH_SHORT).show();
-                    loadRooms();
+                    dbHelper.updateBookingStatus(booking.getId(), newStatus);
+                    booking.setStatus(newStatus);
+                    bookingAdapter.notifyDataSetChanged();
+
+                    Toast.makeText(this,
+                            newStatus.equals(Constants.STATUS_CONFIRMED)
+                                    ? "Đã duyệt booking"
+                                    : "Đã huỷ booking",
+                            Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    // 🔥 FIX DELETE ROOM
+    void deleteRoom(Room room) {
+        db.collection(Constants.COLLECTION_BOOKINGS)
+                .whereEqualTo("roomId", room.getId())
+                .whereEqualTo("status", Constants.STATUS_PENDING)
+                .get()
+                .addOnSuccessListener(querySnapshots -> {
+                    if (!querySnapshots.isEmpty()) {
+                        Toast.makeText(this,
+                                "Không thể xoá! Phòng đang có " + querySnapshots.size() + " booking pending",
+                                Toast.LENGTH_LONG).show();
+                    } else {
+                        db.collection(Constants.COLLECTION_ROOMS).document(room.getId()).delete()
+                                .addOnSuccessListener(unused -> {
+                                    Toast.makeText(this, "Đã xoá phòng", Toast.LENGTH_SHORT).show();
+                                    loadRooms();
+                                });
+                    }
                 });
     }
 
