@@ -73,13 +73,13 @@ public class RoomDetailActivity extends AppCompatActivity {
                 .addSnapshotListener((snapshot, error) -> {
                     if (snapshot != null && snapshot.exists()) {
                         String status = snapshot.getString("status");
-                        if (status != null && status.equals(Constants.STATUS_BOOKED)) {
-                            tvDetailStatus.setText("Trạng thái: Đã được đặt");
+                        if (status != null && status.equals("maintenance")) {
+                            tvDetailStatus.setText("Trạng thái: Đang bảo trì");
                             tvDetailStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
                             btnBookNow.setEnabled(false);
-                            btnBookNow.setText("Phòng đã được đặt");
+                            btnBookNow.setText("Phòng đang bảo trì");
                         } else {
-                            tvDetailStatus.setText("Trạng thái: Còn trống");
+                            tvDetailStatus.setText("Trạng thái: Có thể đặt");
                             tvDetailStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
                             btnBookNow.setEnabled(true);
                             btnBookNow.setText("Đặt phòng ngay");

@@ -74,7 +74,6 @@ public class HomeFragment extends Fragment {
 
     void loadRooms() {
         db.collection(Constants.COLLECTION_ROOMS)
-                .whereEqualTo("status", Constants.STATUS_AVAILABLE)
                 .get()
                 .addOnSuccessListener(querySnapshots -> {
                     roomList.clear();
