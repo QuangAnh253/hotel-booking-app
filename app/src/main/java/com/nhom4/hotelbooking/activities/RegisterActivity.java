@@ -63,11 +63,30 @@ public class RegisterActivity extends AppCompatActivity {
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnSuccessListener(authResult -> {
                         String uid = authResult.getUser().getUid();
-                        User user = new User(uid, name, email, phone, Constants.ROLE_USER);
-                        db.collection(Constants.COLLECTION_USERS).document(uid).set(user)
+
+                        // Sinh mã OTP 6 số ngẫu nhiên
+                        String otpCode = String.valueOf((int)(Math.random() * 900000) + 100000);
+                        long expiry = System.currentTimeMillis() + 5 * 60 * 1000; // 5 phút
+
+                        // Lưu OTP vào Firestore
+                        java.util.Map<String, Object> otpData = new java.util.HashMap<>();
+                        otpData.put("code", otpCode);
+                        otpData.put("expiry", expiry);
+
+                        db.collection("otp_codes").document(uid).set(otpData)
                                 .addOnSuccessListener(unused -> {
-                                    Toast.makeText(this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
-                                    startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                                    // Gửi mail
+                                    OtpActivity.sendOtpEmail(email, otpCode);
+
+                                    Toast.makeText(this, "Mã OTP đã gửi tới " + email, Toast.LENGTH_LONG).show();
+
+                                    // Chuyển sang OtpActivity — CHƯA lưu user vào "users" collection
+                                    Intent intent = new Intent(RegisterActivity.this, OtpActivity.class);
+                                    intent.putExtra("email", email);
+                                    intent.putExtra("name", name);
+                                    intent.putExtra("phone", phone);
+                                    intent.putExtra("uid", uid);
+                                    startActivity(intent);
                                     finish();
                                 });
                     })

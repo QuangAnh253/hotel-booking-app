@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Xác nhận Email"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:id="@+id/tvOtpDesc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mã OTP đã gửi tới email của bạn"
+        android:textColor="#555555"
+        android:gravity="center"
+        android:layout_marginBottom="32dp" />
+
+    <EditText
+        android:id="@+id/edtOtp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nhập mã 6 số"
+        android:inputType="number"
+        android:maxLength="6"
+        android:gravity="center"
+        android:textSize="28sp"
+        android:letterSpacing="0.5"
+        android:layout_marginBottom="24dp" />
+
+    <Button
+        android:id="@+id/btnVerifyOtp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Xác nhận"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:id="@+id/tvResendOtp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Gửi lại mã"
+        android:textColor="#1565C0" />
+
+</LinearLayout>

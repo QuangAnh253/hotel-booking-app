@@ -39,6 +39,14 @@ public class SplashActivity extends AppCompatActivity {
     void checkRole(String uid) {
         db.collection(Constants.COLLECTION_USERS).document(uid).get()
                 .addOnSuccessListener(snapshot -> {
+                    // Chưa xác thực OTP → không có document trong "users"
+                    if (!snapshot.exists()) {
+                        mAuth.signOut();
+                        startActivity(new Intent(SplashActivity.this, LoginActivity.class));
+                        finish();
+                        return;
+                    }
+
                     String role = snapshot.getString("role");
                     if (role != null && role.equals(Constants.ROLE_ADMIN)) {
                         startActivity(new Intent(SplashActivity.this, AdminHomeActivity.class));

@@ -53,8 +53,36 @@ public class LoginActivity extends AppCompatActivity {
             mAuth.signInWithEmailAndPassword(email, password)
                     .addOnSuccessListener(authResult -> {
                         String uid = authResult.getUser().getUid();
+
                         db.collection(Constants.COLLECTION_USERS).document(uid).get()
                                 .addOnSuccessListener(snapshot -> {
+
+                                    // Nếu chưa có trong collection users = chưa xác nhận OTP
+                                    if (!snapshot.exists()) {
+                                        // Sinh OTP mới và gửi lại thay vì đá user ra
+                                        String otpCode = String.valueOf((int)(Math.random() * 900000) + 100000);
+                                        long expiry = System.currentTimeMillis() + 5 * 60 * 1000;
+
+                                        java.util.Map<String, Object> otpData = new java.util.HashMap<>();
+                                        otpData.put("code", otpCode);
+                                        otpData.put("expiry", expiry);
+
+                                        db.collection("otp_codes").document(uid).set(otpData)
+                                                .addOnSuccessListener(unused -> {
+                                                    OtpActivity.sendOtpEmail(email, otpCode);
+                                                    Toast.makeText(this,
+                                                            "Tài khoản chưa xác nhận OTP.\nMã mới đã gửi tới " + email,
+                                                            Toast.LENGTH_LONG).show();
+
+                                                    Intent otpIntent = new Intent(LoginActivity.this, OtpActivity.class);
+                                                    otpIntent.putExtra("email", email);
+                                                    otpIntent.putExtra("uid", uid);
+                                                    startActivity(otpIntent);
+                                                    finish();
+                                                });
+                                        return;
+                                    }
+
                                     String role = snapshot.getString("role");
                                     if (role != null && role.equals(Constants.ROLE_ADMIN)) {
                                         startActivity(new Intent(LoginActivity.this, AdminHomeActivity.class));
@@ -74,4 +102,3 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 }
-
