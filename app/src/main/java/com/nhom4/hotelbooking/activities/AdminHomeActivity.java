@@ -8,16 +8,18 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.nhom4.hotelbooking.R;
-import com.nhom4.hotelbooking.adapters.AdminRoomAdapter;
 import com.nhom4.hotelbooking.adapters.AdminBookingAdapter;
+import com.nhom4.hotelbooking.adapters.AdminRoomAdapter;
 import com.nhom4.hotelbooking.database.DatabaseHelper;
 import com.nhom4.hotelbooking.models.Booking;
 import com.nhom4.hotelbooking.models.Room;
@@ -28,39 +30,46 @@ import java.util.List;
 
 public class AdminHomeActivity extends AppCompatActivity {
 
+    Toolbar toolbarAdmin;
     TabLayout tabLayout;
     FloatingActionButton fabAddRoom;
     RecyclerView recyclerAdminRooms;
 
     FirebaseFirestore db;
-    AdminRoomAdapter adapter;
-    List<Room> roomList;
-
-    // 🔥 THÊM MỚI
-    AdminBookingAdapter bookingAdapter;
-    List<Booking> bookingList;
+    FirebaseAuth mAuth;
     DatabaseHelper dbHelper;
+
+    AdminRoomAdapter roomAdapter;
+    AdminBookingAdapter bookingAdapter;
+
+    List<Room> roomList;
+    List<Booking> bookingList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_home);
 
+        toolbarAdmin = findViewById(R.id.toolbarAdmin);
         tabLayout = findViewById(R.id.tabLayout);
         fabAddRoom = findViewById(R.id.fabAddRoom);
 
-        db = FirebaseFirestore.getInstance();
+        setSupportActionBar(toolbarAdmin);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Quản trị");
+        }
 
-        // 🔥 THÊM
-        bookingList = new ArrayList<>();
+        db = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
         dbHelper = new DatabaseHelper(this);
 
         roomList = new ArrayList<>();
+        bookingList = new ArrayList<>();
 
         recyclerAdminRooms = new RecyclerView(this);
         recyclerAdminRooms.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter = new AdminRoomAdapter(roomList, new AdminRoomAdapter.OnAdminRoomActionListener() {
+        roomAdapter = new AdminRoomAdapter(roomList, new AdminRoomAdapter.OnAdminRoomActionListener() {
             @Override
             public void onEdit(Room room) {
                 Intent intent = new Intent(AdminHomeActivity.this, AdminAddEditRoomActivity.class);
@@ -78,8 +87,7 @@ public class AdminHomeActivity extends AppCompatActivity {
                         .show();
             }
         });
-
-        recyclerAdminRooms.setAdapter(adapter);
+        recyclerAdminRooms.setAdapter(roomAdapter);
         ((android.widget.FrameLayout) findViewById(R.id.frameAdmin)).addView(recyclerAdminRooms);
 
         tabLayout.addTab(tabLayout.newTab().setText("Phòng"));
@@ -89,8 +97,10 @@ public class AdminHomeActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if (tab.getPosition() == 0) {
+                    fabAddRoom.show();
                     loadRooms();
                 } else {
+                    fabAddRoom.hide();
                     loadBookings();
                 }
             }
@@ -108,10 +118,19 @@ public class AdminHomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadRooms();
+        if (tabLayout.getSelectedTabPosition() == 0) {
+            loadRooms();
+        }
     }
 
     void loadRooms() {
+        android.widget.FrameLayout frame = findViewById(R.id.frameAdmin);
+        frame.removeAllViews();
+        recyclerAdminRooms = new RecyclerView(this);
+        recyclerAdminRooms.setLayoutManager(new LinearLayoutManager(this));
+        recyclerAdminRooms.setAdapter(roomAdapter);
+        frame.addView(recyclerAdminRooms);
+
         db.collection(Constants.COLLECTION_ROOMS).get()
                 .addOnSuccessListener(querySnapshots -> {
                     roomList.clear();
@@ -120,14 +139,13 @@ public class AdminHomeActivity extends AppCompatActivity {
                         room.setId(doc.getId());
                         roomList.add(room);
                     }
-                    adapter.notifyDataSetChanged();
+                    roomAdapter.notifyDataSetChanged();
                 });
     }
 
-    // 🔥 REPLACE HOÀN TOÀN
     void loadBookings() {
-        bookingList.clear();
-        recyclerAdminRooms.setAdapter(null);
+        android.widget.FrameLayout frame = findViewById(R.id.frameAdmin);
+        frame.removeAllViews();
 
         RecyclerView recyclerBookings = new RecyclerView(this);
         recyclerBookings.setLayoutManager(new LinearLayoutManager(this));
@@ -146,9 +164,6 @@ public class AdminHomeActivity extends AppCompatActivity {
                 });
 
         recyclerBookings.setAdapter(bookingAdapter);
-
-        android.widget.FrameLayout frame = findViewById(R.id.frameAdmin);
-        frame.removeAllViews();
         frame.addView(recyclerBookings);
 
         db.collection(Constants.COLLECTION_BOOKINGS).get()
@@ -163,7 +178,6 @@ public class AdminHomeActivity extends AppCompatActivity {
                 });
     }
 
-    // 🔥 THÊM MỚI
     void updateBookingStatus(Booking booking, String newStatus) {
         db.collection(Constants.COLLECTION_BOOKINGS).document(booking.getId())
                 .update("status", newStatus)
@@ -171,16 +185,11 @@ public class AdminHomeActivity extends AppCompatActivity {
                     dbHelper.updateBookingStatus(booking.getId(), newStatus);
                     booking.setStatus(newStatus);
                     bookingAdapter.notifyDataSetChanged();
-
-                    Toast.makeText(this,
-                            newStatus.equals(Constants.STATUS_CONFIRMED)
-                                    ? "Đã duyệt booking"
-                                    : "Đã huỷ booking",
-                            Toast.LENGTH_SHORT).show();
+                    String msg = newStatus.equals(Constants.STATUS_CONFIRMED) ? "Đã duyệt booking" : "Đã huỷ booking";
+                    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
                 });
     }
 
-    // 🔥 FIX DELETE ROOM
     void deleteRoom(Room room) {
         db.collection(Constants.COLLECTION_BOOKINGS)
                 .whereEqualTo("roomId", room.getId())
@@ -203,18 +212,22 @@ public class AdminHomeActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, 1, 0, "Làm mới");
-        menu.add(0, 2, 0, "Đăng xuất");
+        getMenuInflater().inflate(R.menu.menu_admin, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == 1) {
-            loadRooms();
+        int id = item.getItemId();
+        if (id == R.id.menu_refresh) {
+            if (tabLayout.getSelectedTabPosition() == 0) {
+                loadRooms();
+            } else {
+                loadBookings();
+            }
             Toast.makeText(this, "Đã làm mới", Toast.LENGTH_SHORT).show();
-        } else if (item.getItemId() == 2) {
-            com.google.firebase.auth.FirebaseAuth.getInstance().signOut();
+        } else if (id == R.id.menu_logout) {
+            mAuth.signOut();
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         }

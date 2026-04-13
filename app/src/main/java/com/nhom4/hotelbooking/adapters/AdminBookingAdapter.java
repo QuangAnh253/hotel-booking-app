@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.nhom4.hotelbooking.R;
 import com.nhom4.hotelbooking.models.Booking;
 import com.nhom4.hotelbooking.utils.Constants;
@@ -43,12 +44,14 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
         Booking booking = bookingList.get(position);
 
         holder.tvAdminBookingRoom.setText(booking.getRoomName());
-        holder.tvAdminBookingUser.setText("User: " + booking.getUserId());
         holder.tvAdminBookingDate.setText(booking.getCheckIn() + " → " + booking.getCheckOut());
         holder.tvAdminBookingTotal.setText(String.format("Tổng: %,.0f VNĐ", booking.getTotalPrice()));
         holder.tvAdminBookingStatus.setText("Trạng thái: " + booking.getStatus());
 
-        // Chỉ hiện nút Duyệt/Huỷ khi status là "pending"
+        // Mặc định hiện UID trước, sau đó thay bằng thông tin thật
+        holder.tvAdminBookingUser.setText("Đang tải...");
+        loadUserInfo(booking.getUserId(), holder.tvAdminBookingUser);
+
         if (booking.getStatus().equals(Constants.STATUS_PENDING)) {
             holder.tvAdminBookingStatus.setTextColor(0xFFFF8C00);
             holder.btnApprove.setVisibility(View.VISIBLE);
@@ -61,6 +64,22 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
         holder.btnApprove.setOnClickListener(v -> listener.onApprove(booking));
         holder.btnReject.setOnClickListener(v -> listener.onReject(booking));
     }
+
+    void loadUserInfo(String userId, TextView tvAdminBookingUser) {
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.exists()) {
+                        String name = snapshot.getString("name");
+                        String phone = snapshot.getString("phone");
+                        String email = snapshot.getString("email");
+                        tvAdminBookingUser.setText(name + " | " + phone + "\n" + email);
+                    }
+                });
+    }
+
 
     @Override
     public int getItemCount() {
