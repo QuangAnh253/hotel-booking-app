@@ -2,18 +2,20 @@ package com.nhom4.hotelbooking.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -21,7 +23,9 @@ import com.nhom4.hotelbooking.R;
 import com.nhom4.hotelbooking.adapters.AdminBookingAdapter;
 import com.nhom4.hotelbooking.adapters.AdminRoomAdapter;
 import com.nhom4.hotelbooking.adapters.ChatConversationAdapter;
-import com.nhom4.hotelbooking.database.DatabaseHelper;
+import com.nhom4.hotelbooking.fragments.AdminDashboardFragment;
+import com.nhom4.hotelbooking.fragments.AdminMoreFragment;
+import com.nhom4.hotelbooking.fragments.ProfileFragment;
 import com.nhom4.hotelbooking.models.Booking;
 import com.nhom4.hotelbooking.models.Room;
 import com.nhom4.hotelbooking.utils.Constants;
@@ -33,20 +37,21 @@ import java.util.Map;
 public class AdminHomeActivity extends AppCompatActivity {
 
     Toolbar toolbarAdmin;
-    TabLayout tabLayout;
+    TextView tvAdminTitle;
+    ImageButton btnAdminBack;
+    BottomNavigationView adminBottomNav;
     FloatingActionButton fabAddRoom;
 
     FirebaseFirestore db;
     FirebaseAuth mAuth;
-    DatabaseHelper dbHelper;
 
     AdminRoomAdapter roomAdapter;
     AdminBookingAdapter bookingAdapter;
     ChatConversationAdapter chatAdapter;
 
-    List<Room> roomList;
-    List<Booking> bookingList;
-    List<Map<String, Object>> conversationList;
+    List<Room> roomList = new ArrayList<>();
+    List<Booking> bookingList = new ArrayList<>();
+    List<Map<String, Object>> conversationList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,231 +59,143 @@ public class AdminHomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_admin_home);
 
         toolbarAdmin = findViewById(R.id.toolbarAdmin);
-        tabLayout = findViewById(R.id.tabLayout);
+        tvAdminTitle = findViewById(R.id.tvAdminTitle);
+        btnAdminBack = findViewById(R.id.btnAdminBack);
+        adminBottomNav = findViewById(R.id.adminBottomNav);
         fabAddRoom = findViewById(R.id.fabAddRoom);
 
         setSupportActionBar(toolbarAdmin);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Quản trị");
-        }
+        if (getSupportActionBar() != null) getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
-        dbHelper = new DatabaseHelper(this);
 
-        roomList = new ArrayList<>();
-        bookingList = new ArrayList<>();
-        conversationList = new ArrayList<>();
+        btnAdminBack.setOnClickListener(v -> showDashboard());
 
-        tabLayout.addTab(tabLayout.newTab().setText("Phòng"));
-        tabLayout.addTab(tabLayout.newTab().setText("Booking"));
-        tabLayout.addTab(tabLayout.newTab().setText("Chat"));
-
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                if (tab.getPosition() == 0) {
-                    fabAddRoom.show();
-                    loadRooms();
-                } else if (tab.getPosition() == 1) {
-                    fabAddRoom.hide();
-                    loadBookings();
-                } else if (tab.getPosition() == 2) {
-                    fabAddRoom.hide();
-                    loadChats();
-                }
+        adminBottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.admin_nav_home) {
+                showDashboard();
+                return true;
+            } else if (id == R.id.admin_nav_chat) {
+                loadAdminChats();
+                return true;
+            } else if (id == R.id.admin_nav_accounts) {
+                updateHeader("Hồ sơ cá nhân");
+                btnAdminBack.setVisibility(View.GONE);
+                loadFragment(new ProfileFragment());
+                fabAddRoom.hide();
+                return true;
+            } else if (id == R.id.admin_nav_more) {
+                // Đã sửa: Tab "Thêm" trỏ về AdminMoreFragment thay vì hiện Logout
+                updateHeader("Thêm");
+                btnAdminBack.setVisibility(View.GONE);
+                loadFragment(new AdminMoreFragment());
+                fabAddRoom.hide();
+                return true;
             }
-
-            @Override public void onTabUnselected(TabLayout.Tab tab) {}
-            @Override public void onTabReselected(TabLayout.Tab tab) {}
+            return false;
         });
 
-        fabAddRoom.setOnClickListener(v ->
-                startActivity(new Intent(this, AdminAddEditRoomActivity.class))
-        );
+        fabAddRoom.setOnClickListener(v -> startActivity(new Intent(this, AdminAddEditRoomActivity.class)));
 
-        loadRooms();
+        showDashboard();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        int pos = tabLayout.getSelectedTabPosition();
-        if (pos == 0) loadRooms();
-        else if (pos == 1) loadBookings();
-        else if (pos == 2) loadChats();
+    public void showDashboard() {
+        tvAdminTitle.setText("Quản trị hệ thống");
+        btnAdminBack.setVisibility(View.GONE);
+        fabAddRoom.hide();
+        loadFragment(new AdminDashboardFragment());
     }
 
-    // ================= ROOMS =================
-    void loadRooms() {
-        android.widget.FrameLayout frame = findViewById(R.id.frameAdmin);
-        frame.removeAllViews();
+    private void loadFragment(Fragment fragment) {
+        getSupportFragmentManager().beginTransaction().replace(R.id.frameAdmin, fragment).commit();
+    }
 
-        RecyclerView recycler = new RecyclerView(this);
-        recycler.setLayoutManager(new LinearLayoutManager(this));
+    private void updateHeader(String title) {
+        tvAdminTitle.setText(title);
+        btnAdminBack.setVisibility(View.VISIBLE);
+    }
 
-        roomAdapter = new AdminRoomAdapter(roomList, new AdminRoomAdapter.OnAdminRoomActionListener() {
-            @Override
-            public void onEdit(Room room) {
-                Intent intent = new Intent(AdminHomeActivity.this, AdminAddEditRoomActivity.class);
-                intent.putExtra(Constants.EXTRA_ROOM, room);
-                startActivity(intent);
+    public void loadAdminRooms() {
+        updateHeader("Quản lý Phòng");
+        fabAddRoom.show();
+        setupRecycler(new AdminRoomAdapter(roomList, new AdminRoomAdapter.OnAdminRoomActionListener() {
+            @Override public void onEdit(Room r) {
+                Intent i = new Intent(AdminHomeActivity.this, AdminAddEditRoomActivity.class);
+                i.putExtra(Constants.EXTRA_ROOM, r);
+                startActivity(i);
             }
-
-            @Override
-            public void onDelete(Room room) {
-                new AlertDialog.Builder(AdminHomeActivity.this)
-                        .setTitle("Xác nhận xoá")
-                        .setMessage("Bạn có chắc muốn xoá phòng " + room.getName() + "?")
-                        .setPositiveButton("Xoá", (d, w) -> deleteRoom(room))
-                        .setNegativeButton("Huỷ", null)
-                        .show();
+            @Override public void onDelete(Room r) { deleteRoom(r); }
+        }));
+        db.collection(Constants.COLLECTION_ROOMS).get().addOnSuccessListener(snap -> {
+            roomList.clear();
+            for (QueryDocumentSnapshot doc : snap) {
+                Room r = doc.toObject(Room.class);
+                r.setId(doc.getId());
+                roomList.add(r);
             }
+            if (roomAdapter != null) roomAdapter.notifyDataSetChanged();
         });
-
-        recycler.setAdapter(roomAdapter);
-        frame.addView(recycler);
-
-        db.collection(Constants.COLLECTION_ROOMS).get()
-                .addOnSuccessListener(snap -> {
-                    roomList.clear();
-                    for (QueryDocumentSnapshot doc : snap) {
-                        Room r = doc.toObject(Room.class);
-                        r.setId(doc.getId());
-                        roomList.add(r);
-                    }
-                    roomAdapter.notifyDataSetChanged();
-                });
     }
 
-    // ================= BOOKINGS =================
-    void loadBookings() {
-        android.widget.FrameLayout frame = findViewById(R.id.frameAdmin);
-        frame.removeAllViews();
-
-        RecyclerView recycler = new RecyclerView(this);
-        recycler.setLayoutManager(new LinearLayoutManager(this));
-
-        bookingAdapter = new AdminBookingAdapter(bookingList,
-                new AdminBookingAdapter.OnAdminBookingActionListener() {
-                    @Override
-                    public void onApprove(Booking booking) {
-                        updateBookingStatus(booking, Constants.STATUS_CONFIRMED);
-                    }
-
-                    @Override
-                    public void onReject(Booking booking) {
-                        updateBookingStatus(booking, Constants.STATUS_CANCELLED);
-                    }
-                });
-
-        recycler.setAdapter(bookingAdapter);
-        frame.addView(recycler);
-
-        db.collection(Constants.COLLECTION_BOOKINGS).get()
-                .addOnSuccessListener(snap -> {
-                    bookingList.clear();
-                    for (QueryDocumentSnapshot doc : snap) {
-                        Booking b = doc.toObject(Booking.class);
-                        b.setId(doc.getId());
-                        bookingList.add(b);
-                    }
-                    bookingAdapter.notifyDataSetChanged();
-                });
+    public void loadAdminBookings() {
+        updateHeader("Quản lý Đặt phòng");
+        fabAddRoom.hide();
+        setupRecycler(new AdminBookingAdapter(bookingList, new AdminBookingAdapter.OnAdminBookingActionListener() {
+            @Override public void onApprove(Booking b) { updateBookingStatus(b, Constants.STATUS_CONFIRMED); }
+            @Override public void onReject(Booking b) { updateBookingStatus(b, Constants.STATUS_CANCELLED); }
+        }));
+        db.collection(Constants.COLLECTION_BOOKINGS).get().addOnSuccessListener(snap -> {
+            bookingList.clear();
+            for (QueryDocumentSnapshot doc : snap) {
+                Booking b = doc.toObject(Booking.class);
+                b.setId(doc.getId());
+                bookingList.add(b);
+            }
+            if (bookingAdapter != null) bookingAdapter.notifyDataSetChanged();
+        });
     }
 
-    // ================= CHATS =================
-    void loadChats() {
-        android.widget.FrameLayout frame = findViewById(R.id.frameAdmin);
-        frame.removeAllViews();
-
-        conversationList = new ArrayList<>();
-
-        RecyclerView recyclerChats = new RecyclerView(this);
-        recyclerChats.setLayoutManager(new LinearLayoutManager(this));
-
-        chatAdapter = new ChatConversationAdapter(conversationList,
-                (userId, userName) -> {
-                    Intent intent = new Intent(this, AdminChatDetailActivity.class);
-                    intent.putExtra(Constants.EXTRA_USER_ID, userId);
-                    intent.putExtra(Constants.EXTRA_USER_NAME, userName);
-                    startActivity(intent);
-                });
-
-        recyclerChats.setAdapter(chatAdapter);
-        frame.addView(recyclerChats);
-
-        db.collection(Constants.COLLECTION_CHATS)
-                .orderBy("lastMessageTime", com.google.firebase.firestore.Query.Direction.DESCENDING)
+    public void loadAdminChats() {
+        updateHeader("Hỗ trợ khách hàng");
+        fabAddRoom.hide();
+        setupRecycler(new ChatConversationAdapter(conversationList, (uid, name) -> {
+            Intent i = new Intent(this, AdminChatDetailActivity.class);
+            i.putExtra(Constants.EXTRA_USER_ID, uid);
+            i.putExtra(Constants.EXTRA_USER_NAME, name);
+            startActivity(i);
+        }));
+        db.collection(Constants.COLLECTION_CHATS).orderBy("lastMessageTime", com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .addSnapshotListener((snap, e) -> {
                     if (e != null || snap == null) return;
                     conversationList.clear();
-                    for (QueryDocumentSnapshot doc : snap) {
-                        conversationList.add(doc.getData());
-                    }
-                    chatAdapter.notifyDataSetChanged();
+                    for (QueryDocumentSnapshot doc : snap) conversationList.add(doc.getData());
+                    if (chatAdapter != null) chatAdapter.notifyDataSetChanged();
                 });
     }
 
-    // ================= HELPERS =================
-    void updateBookingStatus(Booking booking, String newStatus) {
-        db.collection(Constants.COLLECTION_BOOKINGS)
-                .document(booking.getId())
-                .update("status", newStatus)
-                .addOnSuccessListener(unused -> {
-                    dbHelper.updateBookingStatus(booking.getId(), newStatus);
-                    booking.setStatus(newStatus);
-                    bookingAdapter.notifyDataSetChanged();
-                    String msg = newStatus.equals(Constants.STATUS_CONFIRMED)
-                            ? "Đã duyệt booking" : "Đã huỷ booking";
-                    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-                });
+    private void setupRecycler(RecyclerView.Adapter adapter) {
+        android.widget.FrameLayout frame = findViewById(R.id.frameAdmin);
+        frame.removeAllViews();
+        RecyclerView recycler = new RecyclerView(this);
+        recycler.setLayoutManager(new LinearLayoutManager(this));
+        recycler.setAdapter(adapter);
+        frame.addView(recycler);
+        if (adapter instanceof AdminRoomAdapter) roomAdapter = (AdminRoomAdapter) adapter;
+        if (adapter instanceof AdminBookingAdapter) bookingAdapter = (AdminBookingAdapter) adapter;
+        if (adapter instanceof ChatConversationAdapter) chatAdapter = (ChatConversationAdapter) adapter;
     }
 
-    void deleteRoom(Room room) {
-        // Kiểm tra còn booking pending không trước khi xoá
-        db.collection(Constants.COLLECTION_BOOKINGS)
-                .whereEqualTo("roomId", room.getId())
-                .whereEqualTo("status", Constants.STATUS_PENDING)
-                .get()
-                .addOnSuccessListener(snap -> {
-                    if (!snap.isEmpty()) {
-                        Toast.makeText(this,
-                                "Không thể xoá! Phòng đang có " + snap.size() + " booking pending",
-                                Toast.LENGTH_LONG).show();
-                    } else {
-                        db.collection(Constants.COLLECTION_ROOMS)
-                                .document(room.getId())
-                                .delete()
-                                .addOnSuccessListener(unused -> {
-                                    Toast.makeText(this, "Đã xoá phòng", Toast.LENGTH_SHORT).show();
-                                    loadRooms();
-                                });
-                    }
-                });
+    void updateBookingStatus(Booking b, String status) {
+        db.collection(Constants.COLLECTION_BOOKINGS).document(b.getId()).update("status", status).addOnSuccessListener(u -> {
+            b.setStatus(status);
+            if (bookingAdapter != null) bookingAdapter.notifyDataSetChanged();
+        });
     }
 
-    // ================= MENU (Làm mới + Đăng xuất) =================
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_admin, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.menu_refresh) {
-            int pos = tabLayout.getSelectedTabPosition();
-            if (pos == 0) loadRooms();
-            else if (pos == 1) loadBookings();
-            else loadChats();
-            Toast.makeText(this, "Đã làm mới", Toast.LENGTH_SHORT).show();
-        } else if (id == R.id.menu_logout) {
-            mAuth.signOut();
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-        }
-        return true;
+    void deleteRoom(Room r) {
+        db.collection(Constants.COLLECTION_ROOMS).document(r.getId()).delete().addOnSuccessListener(u -> loadAdminRooms());
     }
 }

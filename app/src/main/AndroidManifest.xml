@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/logo_hotel"
         android:label="Hotel Booking"
+        android:largeHeap="true"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
 
         <activity android:name=".activities.SplashActivity" android:exported="true">
@@ -16,8 +20,25 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activities.LobbyActivity" />
         <activity android:name=".activities.LoginActivity" />
         <activity android:name=".activities.RegisterActivity" />
+        <activity android:name=".activities.PreOtpActivity" />
+        <activity android:name=".activities.ForgotPasswordActivity" />
+        <activity android:name=".activities.NewsActivity" />
+        <activity android:name=".activities.NewsDetailActivity" />
+        <activity android:name=".activities.ParkActivity" />
+        <activity android:name=".activities.ParkDetailActivity" />
+        <activity android:name=".activities.AirlineGuestActivity" />
+        <activity android:name=".activities.AirlineWebViewActivity" />
+        <activity android:name=".activities.AdminNewsActivity" />
+        <activity android:name=".activities.AdminAddEditNewsActivity" />
+        <activity android:name=".activities.AdminParkActivity" />
+        <activity android:name=".activities.AdminAddEditParkActivity" />
+        <activity android:name=".activities.AdminAirlineActivity" />
+        <activity android:name=".activities.AdminAddEditAirlineActivity" />
+        <activity android:name=".activities.AdminAccountActivity" />
+        <activity android:name=".activities.AdminEditAccountActivity" />
         <activity android:name=".activities.MainActivity" />
         <activity android:name=".activities.RoomDetailActivity" />
         <activity android:name=".activities.BookingActivity" />

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/admin_nav_home"
+        android:icon="@drawable/ic_home_modern"
+        android:title="Trang chủ" />
+
+    <item
+        android:id="@+id/admin_nav_chat"
+        android:icon="@drawable/ic_chat_modern"
+        android:title="Chat" />
+
+    <item
+        android:id="@+id/admin_nav_accounts"
+        android:icon="@drawable/ic_profile_modern"
+        android:title="Tài khoản" />
+
+    <item
+        android:id="@+id/admin_nav_more"
+        android:icon="@drawable/ic_more_modern"
+        android:title="Thêm" />
+
+</menu>

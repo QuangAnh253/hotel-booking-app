@@ -1,53 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="12dp"
-    android:layout_marginBottom="8dp"
-    android:background="@android:color/white">
-
-    <TextView
-        android:id="@+id/tvBookingRoomName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/tvBookingDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="#555555"
-        android:layout_marginTop="4dp" />
-
-    <TextView
-        android:id="@+id/tvBookingTotal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="#1565C0"
-        android:layout_marginTop="4dp" />
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="3dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/tvBookingRoomName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvBookingStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:background="#FFF3E0"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="PENDING"
+                android:textColor="#E65100"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
 
         <TextView
-            android:id="@+id/tvBookingStatus"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textStyle="bold" />
-
-        <Button
-            android:id="@+id/btnCancelBooking"
+            android:id="@+id/tvBookingDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Huỷ"
-            android:textSize="12sp" />
+            android:layout_marginTop="8dp"
+            android:textColor="#666"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvBookingTotal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="#e8952f"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#EEEEEE" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReviewBooking"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đánh giá"
+                android:textColor="#2E7D32"
+                android:textAllCaps="false"
+                android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnContactSupport"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Liên hệ"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                app:cornerRadius="8dp"
+                app:strokeColor="#e8952f"
+                android:textColor="#e8952f" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancelBooking"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Huỷ đơn"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                app:backgroundTint="#D32F2F"
+                app:cornerRadius="8dp" />
+        </LinearLayout>
 
     </LinearLayout>
-
-</LinearLayout>
+</androidx.cardview.widget.CardView>

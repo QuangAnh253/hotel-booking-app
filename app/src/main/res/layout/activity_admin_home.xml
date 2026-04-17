@@ -1,35 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarAdmin"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="#1565C0"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        xmlns:app="http://schemas.android.com/apk/res-auto" />
+        android:elevation="4dp">
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageButton
+                android:id="@+id/btnAdminBack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_back_arrow"
+                android:visibility="gone"
+                app:tint="@android:color/white" />
+
+            <TextView
+                android:id="@+id/tvAdminTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Quản trị hệ thống"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+        </RelativeLayout>
+    </androidx.appcompat.widget.Toolbar>
 
     <FrameLayout
         android:id="@+id/frameAdmin"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="match_parent"
+        android:layout_above="@+id/adminBottomNav"
+        android:layout_below="@+id/toolbarAdmin" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddRoom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
+        android:layout_alignParentEnd="true"
+        android:layout_above="@+id/adminBottomNav"
         android:layout_margin="16dp"
-        android:src="@android:drawable/ic_input_add" />
+        android:src="@android:drawable/ic_input_add"
+        android:visibility="gone"
+        app:tint="@android:color/white" />
 
-</LinearLayout>
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/adminBottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/white"
+        app:elevation="8dp"
+        app:itemIconTint="@color/nav_item_color"
+        app:itemTextColor="@color/nav_item_color"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/admin_bottom_nav_menu" />
+
+</RelativeLayout>

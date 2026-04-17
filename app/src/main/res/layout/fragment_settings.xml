@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <ImageButton
+                android:id="@+id/btnBackSettings"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_back_arrow"
+                app:tint="#333" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="Cài đặt"
+                android:textColor="#333"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/btnSettingLanguage"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Đổi ngôn ngữ"
+                    android:drawableStart="@android:drawable/ic_menu_mapmode"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#e8952f" />
+
+                <View style="@style/Divider" />
+
+                <TextView
+                    android:id="@+id/btnSettingChangePass"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Đổi mật khẩu"
+                    android:drawableStart="@android:drawable/ic_lock_idle_lock"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#e8952f" />
+
+                <View style="@style/Divider" />
+
+                <TextView
+                    android:id="@+id/btnSettingNotify"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Thiết lập thông báo"
+                    android:drawableStart="@android:drawable/ic_popup_reminder"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#e8952f" />
+
+                <View style="@style/Divider" />
+
+                <TextView
+                    android:id="@+id/btnSettingTerms"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Điều khoản chung"
+                    android:drawableStart="@android:drawable/ic_menu_info_details"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#e8952f" />
+
+                <View style="@style/Divider" />
+
+                <TextView
+                    android:id="@+id/btnSettingLogout"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Đăng xuất"
+                    android:textColor="#D32F2F"
+                    android:drawableStart="@android:drawable/ic_lock_power_off"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#D32F2F" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

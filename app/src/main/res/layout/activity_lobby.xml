@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1565C0">
+
+    <!-- Đây là ImageView sẽ giữ ảnh nền, gỡ bỏ android:src để tránh crash -->
+    <ImageView
+        android:id="@+id/ivBackgroundLobby"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#4D000000" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/ivLogo"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/logo_hotel"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="HOTEL BOOKING"
+            android:textColor="@android:color/white"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLoginNow"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginTop="40dp"
+            android:text="Đăng nhập ngay"
+            android:textColor="#1565C0"
+            app:backgroundTint="@android:color/white"
+            app:cornerRadius="12dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnJoinNow"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginTop="12dp"
+            android:text="Tham gia ngay"
+            android:textColor="@android:color/white"
+            app:cornerRadius="12dp"
+            app:strokeColor="@android:color/white" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

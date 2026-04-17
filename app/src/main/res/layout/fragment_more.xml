@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/btnMoreRoom"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Lưu trú"
+                    android:drawableStart="@drawable/ic_menu_hotel"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#e8952f" />
+
+                <View style="@style/Divider" />
+
+                <TextView
+                    android:id="@+id/btnMoreFavorite"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Phòng yêu thích"
+                    android:drawableStart="@drawable/ic_favorite_filled"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#e8952f" />
+
+                <View style="@style/Divider" />
+
+                <TextView
+                    android:id="@+id/btnMoreNews"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Tin tức"
+                    android:drawableStart="@drawable/ic_menu_news"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#e8952f" />
+
+                <View style="@style/Divider" />
+
+                <TextView
+                    android:id="@+id/btnMoreAbout"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Về Hotel booking app"
+                    android:drawableStart="@drawable/ic_more_modern"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#e8952f" />
+
+                <View style="@style/Divider" />
+
+                <TextView
+                    android:id="@+id/btnMoreSettings"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Cài đặt"
+                    android:drawableStart="@android:drawable/ic_menu_manage"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#e8952f" />
+
+                <View style="@style/Divider" />
+
+                <TextView
+                    android:id="@+id/btnMoreRate"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Hài lòng với Hotel Booking App? Đánh giá ngay!"
+                    android:drawableStart="@android:drawable/btn_star_big_on"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#e8952f" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

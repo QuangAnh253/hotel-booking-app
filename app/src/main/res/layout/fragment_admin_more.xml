@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/btnAdminMoreRooms"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Quản lý phòng"
+                    android:drawableStart="@drawable/ic_menu_hotel"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#e8952f" />
+
+                <View style="@style/Divider" />
+
+                <TextView
+                    android:id="@+id/btnAdminMoreNews"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Quản lý tin tức"
+                    android:drawableStart="@drawable/ic_menu_news"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#e8952f" />
+
+                <View style="@style/Divider" />
+
+                <TextView
+                    android:id="@+id/btnAdminMoreAccounts"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Quản lý tài khoản"
+                    android:drawableStart="@drawable/ic_profile_modern"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#e8952f" />
+
+                <View style="@style/Divider" />
+
+                <TextView
+                    android:id="@+id/btnAdminMoreParks"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Quản lý khu vui chơi (Park)"
+                    android:drawableStart="@drawable/ic_menu_park"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#e8952f" />
+
+                <View style="@style/Divider" />
+
+                <TextView
+                    android:id="@+id/btnAdminMoreBookings"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Quản lý booking"
+                    android:drawableStart="@drawable/ic_history_modern"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#e8952f" />
+
+                <View style="@style/Divider" />
+
+                <TextView
+                    android:id="@+id/btnAdminMoreChat"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Truy cập Chat hỗ trợ"
+                    android:drawableStart="@drawable/ic_chat_modern"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#e8952f" />
+
+                <View style="@style/Divider" />
+
+                <TextView
+                    android:id="@+id/btnAdminMoreAbout"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Sửa thông tin About"
+                    android:drawableStart="@drawable/ic_more_modern"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#e8952f" />
+
+                <View style="@style/Divider" />
+
+                <TextView
+                    android:id="@+id/btnAdminMoreSettings"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Cài đặt hệ thống"
+                    android:drawableStart="@android:drawable/ic_menu_manage"
+                    android:drawablePadding="16dp"
+                    app:drawableTint="#e8952f" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

@@ -1,34 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
     android:gravity="end"
-    android:padding="4dp">
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="4dp">
+
+    <!-- Nhãn thời gian hệ thống (Hiện khi khoảng cách tin nhắn xa) -->
+    <TextView
+        android:id="@+id/tvChatHeaderDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginVertical="16dp"
+        android:background="@drawable/bg_chat_date"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="4dp"
+        android:text="Hôm nay"
+        android:textColor="@android:color/white"
+        android:textSize="11sp"
+        android:visibility="gone" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="#1565C0"
-        android:padding="10dp"
-        android:layout_marginStart="64dp">
+        android:layout_marginStart="60dp"
+        android:background="@drawable/bg_message_sent"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="10dp">
 
         <TextView
-            android:id="@+id/tvMessageText"
+            android:id="@+id/tvTimeSent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#FFFFFF"
+            android:layout_marginEnd="8dp"
+            android:text="10:30"
+            android:textColor="#E0E0E0"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/tvMessageSent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nội dung tin nhắn gửi đi"
+            android:textColor="@android:color/white"
             android:textSize="15sp" />
 
-        <TextView
-            android:id="@+id/tvMessageTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#BBDEFB"
-            android:textSize="11sp"
-            android:layout_marginTop="4dp"
-            android:layout_gravity="end" />
-
     </LinearLayout>
+
 </LinearLayout>

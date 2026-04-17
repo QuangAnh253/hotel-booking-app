@@ -1,8 +1,8 @@
 package com.nhom4.hotelbooking.activities;
 
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,7 +29,7 @@ public class ChatActivity extends AppCompatActivity {
     Toolbar toolbarChat;
     RecyclerView recyclerMessages;
     EditText edtMessage;
-    Button btnSend;
+    ImageButton btnSend; // Đã sửa từ Button sang ImageButton
 
     FirebaseFirestore db;
     FirebaseAuth mAuth;
@@ -45,6 +45,7 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        // Ánh xạ theo giao diện mới
         toolbarChat = findViewById(R.id.toolbarChat);
         recyclerMessages = findViewById(R.id.recyclerMessages);
         edtMessage = findViewById(R.id.edtMessage);
@@ -52,15 +53,33 @@ public class ChatActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbarChat);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Hỗ trợ khách hàng");
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
+        
+        // Nút back trên giao diện mới
+        if (findViewById(R.id.btnBackChat) != null) {
+            findViewById(R.id.btnBackChat).setOnClickListener(v -> finish());
         }
 
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
+        if (mAuth.getCurrentUser() == null) {
+            finish();
+            return;
+        }
+
         currentUserId = mAuth.getCurrentUser().getUid();
-        currentUserName = mAuth.getCurrentUser().getEmail();
+        
+        // Lấy tên thật từ Firestore thay vì email để chat chuyên nghiệp hơn
+        db.collection(Constants.COLLECTION_USERS).document(currentUserId).get()
+                .addOnSuccessListener(snap -> {
+                    if (snap.exists()) {
+                        currentUserName = snap.getString("name");
+                    } else {
+                        currentUserName = mAuth.getCurrentUser().getEmail();
+                    }
+                });
 
         messageList = new ArrayList<>();
         messageAdapter = new MessageAdapter(messageList, currentUserId);
@@ -96,14 +115,9 @@ public class ChatActivity extends AppCompatActivity {
 
     void sendMessage() {
         String text = edtMessage.getText().toString().trim();
-
-        if (text.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập tin nhắn", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        if (text.isEmpty()) return;
 
         long timestamp = System.currentTimeMillis();
-
         Message message = new Message(currentUserId, Constants.ROLE_USER, currentUserName, text, timestamp);
 
         db.collection(Constants.COLLECTION_CHATS)
@@ -127,11 +141,5 @@ public class ChatActivity extends AppCompatActivity {
         db.collection(Constants.COLLECTION_CHATS)
                 .document(currentUserId)
                 .set(info);
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        return true;
     }
 }

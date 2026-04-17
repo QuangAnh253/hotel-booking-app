@@ -1,8 +1,9 @@
 package com.nhom4.hotelbooking.activities;
 
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,9 +28,10 @@ import java.util.Map;
 public class AdminChatDetailActivity extends AppCompatActivity {
 
     Toolbar toolbarAdminChat;
+    TextView tvAdminChatTitle;
     RecyclerView recyclerAdminMessages;
     EditText edtAdminMessage;
-    Button btnAdminSend;
+    ImageButton btnAdminSend;
 
     FirebaseFirestore db;
     FirebaseAuth mAuth;
@@ -47,27 +49,38 @@ public class AdminChatDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_chat_detail);
 
+        // Ánh xạ View
         toolbarAdminChat = findViewById(R.id.toolbarAdminChat);
+        tvAdminChatTitle = findViewById(R.id.tvAdminChatTitle);
         recyclerAdminMessages = findViewById(R.id.recyclerAdminMessages);
         edtAdminMessage = findViewById(R.id.edtAdminMessage);
         btnAdminSend = findViewById(R.id.btnAdminSend);
 
+        // Nhận thông tin khách hàng từ Intent
         targetUserId = getIntent().getStringExtra(Constants.EXTRA_USER_ID);
         targetUserName = getIntent().getStringExtra(Constants.EXTRA_USER_NAME);
 
+        // Thiết lập Toolbar
         setSupportActionBar(toolbarAdminChat);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Chat với: " + targetUserName);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
+        
+        // HIỂN THỊ TÊN KHÁCH HÀNG TRÊN TIÊU ĐỀ
+        if (targetUserName != null) {
+            tvAdminChatTitle.setText("Hỗ trợ: " + targetUserName);
+        } else {
+            tvAdminChatTitle.setText("Hỗ trợ khách hàng");
+        }
+
+        findViewById(R.id.btnBackAdminChat).setOnClickListener(v -> finish());
 
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
         adminId = mAuth.getCurrentUser().getUid();
-        adminName = "Admin (" + mAuth.getCurrentUser().getEmail() + ")";
+        adminName = "Admin";
 
         messageList = new ArrayList<>();
-        // Admin dùng adminId làm currentUserId để xác định bubble nào là "gửi đi"
         messageAdapter = new MessageAdapter(messageList, adminId);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -102,14 +115,9 @@ public class AdminChatDetailActivity extends AppCompatActivity {
 
     void sendMessage() {
         String text = edtAdminMessage.getText().toString().trim();
-
-        if (text.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập tin nhắn", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        if (text.isEmpty()) return;
 
         long timestamp = System.currentTimeMillis();
-
         Message message = new Message(adminId, Constants.ROLE_ADMIN, adminName, text, timestamp);
 
         db.collection(Constants.COLLECTION_CHATS)
@@ -127,21 +135,10 @@ public class AdminChatDetailActivity extends AppCompatActivity {
         info.put("lastMessage", lastMsg);
         info.put("lastMessageTime", timestamp);
         info.put("unreadByAdmin", false);
-
-        db.collection(Constants.COLLECTION_CHATS)
-                .document(targetUserId)
-                .update(info);
+        db.collection(Constants.COLLECTION_CHATS).document(targetUserId).update(info);
     }
 
     void markAsRead() {
-        Map<String, Object> update = new HashMap<>();
-        update.put("unreadByAdmin", false);
-        db.collection(Constants.COLLECTION_CHATS).document(targetUserId).update(update);
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        return true;
+        db.collection(Constants.COLLECTION_CHATS).document(targetUserId).update("unreadByAdmin", false);
     }
 }

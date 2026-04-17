@@ -1,213 +1,191 @@
 package com.nhom4.hotelbooking.activities;
 
+import android.app.DatePickerDialog;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.DatePicker;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.nhom4.hotelbooking.R;
-import com.nhom4.hotelbooking.database.DatabaseHelper;
 import com.nhom4.hotelbooking.models.Booking;
 import com.nhom4.hotelbooking.models.Room;
 import com.nhom4.hotelbooking.utils.Constants;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 public class BookingActivity extends AppCompatActivity {
 
-    TextView tvRoomName, tvRoomPrice, tvTotalPrice, tvBookedDates;
-    DatePicker datePickerCheckIn, datePickerCheckOut;
-    Button btnConfirmBooking;
-
-    FirebaseFirestore db;
-    FirebaseAuth mAuth;
-    DatabaseHelper dbHelper;
-
-    Room room;
-    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-
-    // Lưu danh sách khoảng ngày đã đặt để kiểm tra trùng
-    List<long[]> bookedRanges = new ArrayList<>();
+    private TextView tvRoomName, tvRoomPrice, tvCheckInDate, tvCheckOutDate, tvAvailabilityStatus, tvTotalPrice;
+    private ImageView ivStatusIcon;
+    private CardView cardAvailabilityStatus;
+    private MaterialButton btnConfirm;
+    
+    private Room room;
+    private Calendar checkInCalendar, checkOutCalendar;
+    private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    private FirebaseFirestore db;
+    private boolean isAvailable = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booking);
 
-        tvRoomName = findViewById(R.id.tvRoomName);
-        tvRoomPrice = findViewById(R.id.tvRoomPrice);
-        tvTotalPrice = findViewById(R.id.tvTotalPrice);
-        tvBookedDates = findViewById(R.id.tvBookedDates);
-        datePickerCheckIn = findViewById(R.id.datePickerCheckIn);
-        datePickerCheckOut = findViewById(R.id.datePickerCheckOut);
-        btnConfirmBooking = findViewById(R.id.btnConfirmBooking);
-
         db = FirebaseFirestore.getInstance();
-        mAuth = FirebaseAuth.getInstance();
-        dbHelper = new DatabaseHelper(this);
-
         room = (Room) getIntent().getSerializableExtra(Constants.EXTRA_ROOM);
 
-        tvRoomName.setText(room.getName());
-        tvRoomPrice.setText(String.format("Giá: %,.0f VNĐ/đêm", room.getPrice()));
-        tvTotalPrice.setText("Tổng tiền: 0 VNĐ");
+        if (room == null) { finish(); return; }
 
-        // Load ngày đã đặt trước khi cho chọn
-        loadBookedDates();
+        initViews();
+        bindRoomData();
 
-        datePickerCheckIn.init(
-                datePickerCheckIn.getYear(),
-                datePickerCheckIn.getMonth(),
-                datePickerCheckIn.getDayOfMonth(),
-                (view, year, month, day) -> tinhTien()
-        );
-
-        datePickerCheckOut.init(
-                datePickerCheckOut.getYear(),
-                datePickerCheckOut.getMonth(),
-                datePickerCheckOut.getDayOfMonth(),
-                (view, year, month, day) -> tinhTien()
-        );
-
-        btnConfirmBooking.setOnClickListener(v -> datPhong());
+        findViewById(R.id.btnBackBooking).setOnClickListener(v -> finish());
+        findViewById(R.id.btnSelectCheckIn).setOnClickListener(v -> showDatePicker(true));
+        findViewById(R.id.btnSelectCheckOut).setOnClickListener(v -> showDatePicker(false));
+        
+        btnConfirm.setOnClickListener(v -> {
+            if (isAvailable) performBooking();
+            else Toast.makeText(this, "Vui lòng chọn lịch trống để đặt", Toast.LENGTH_SHORT).show();
+        });
+        
+        btnConfirm.setEnabled(false);
+        btnConfirm.setAlpha(0.5f);
     }
 
-    void loadBookedDates() {
+    private void initViews() {
+        tvRoomName = findViewById(R.id.tvRoomName);
+        tvRoomPrice = findViewById(R.id.tvRoomPrice);
+        tvCheckInDate = findViewById(R.id.tvCheckInDate);
+        tvCheckOutDate = findViewById(R.id.tvCheckOutDate);
+        tvAvailabilityStatus = findViewById(R.id.tvAvailabilityStatus);
+        ivStatusIcon = findViewById(R.id.ivStatusIcon);
+        cardAvailabilityStatus = findViewById(R.id.cardAvailabilityStatus);
+        tvTotalPrice = findViewById(R.id.tvTotalPrice);
+        btnConfirm = findViewById(R.id.btnConfirmBooking);
+    }
+
+    private void bindRoomData() {
+        tvRoomName.setText(room.getName());
+        tvRoomPrice.setText(String.format("%,.0f VNĐ/đêm", room.getPrice()));
+    }
+
+    private void showDatePicker(boolean isCheckIn) {
+        Calendar c = Calendar.getInstance();
+        DatePickerDialog dialog = new DatePickerDialog(this, (view, year, month, day) -> {
+            Calendar selected = Calendar.getInstance();
+            selected.set(year, month, day, 0, 0, 0);
+            selected.set(Calendar.MILLISECOND, 0);
+
+            if (isCheckIn) {
+                checkInCalendar = selected;
+                tvCheckInDate.setText(sdf.format(selected.getTime()));
+            } else {
+                checkOutCalendar = selected;
+                tvCheckOutDate.setText(sdf.format(selected.getTime()));
+            }
+            
+            checkAvailabilityRealTime();
+            calculateTotalPrice();
+        }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+        
+        dialog.getDatePicker().setMinDate(System.currentTimeMillis());
+        dialog.show();
+    }
+
+    private void checkAvailabilityRealTime() {
+        if (checkInCalendar == null || checkOutCalendar == null) return;
+
+        if (!checkOutCalendar.after(checkInCalendar)) {
+            updateStatusUI(false, "Ngày trả phải sau ngày nhận");
+            return;
+        }
+
+        updateStatusUI(null, "Đang kiểm tra lịch trống...");
+
         db.collection(Constants.COLLECTION_BOOKINGS)
                 .whereEqualTo("roomId", room.getId())
                 .get()
-                .addOnSuccessListener(querySnapshots -> {
-                    bookedRanges.clear();
-                    StringBuilder sb = new StringBuilder();
+                .addOnSuccessListener(snap -> {
+                    boolean overlapped = false;
+                    try {
+                        long qStart = checkInCalendar.getTimeInMillis();
+                        long qEnd = checkOutCalendar.getTimeInMillis();
 
-                    for (QueryDocumentSnapshot doc : querySnapshots) {
-                        String status = doc.getString("status");
+                        for (QueryDocumentSnapshot doc : snap) {
+                            String status = doc.getString("status");
+                            if (Constants.STATUS_CANCELLED.equals(status)) continue;
 
-                        // Chỉ chặn booking pending hoặc confirmed, bỏ qua cancelled
-                        if (status == null || status.equals(Constants.STATUS_CANCELLED)) continue;
-
-                        String checkIn = doc.getString("checkIn");
-                        String checkOut = doc.getString("checkOut");
-
-                        try {
-                            Date inDate = sdf.parse(checkIn);
-                            Date outDate = sdf.parse(checkOut);
-                            bookedRanges.add(new long[]{inDate.getTime(), outDate.getTime()});
-                            sb.append("• ").append(checkIn).append(" → ").append(checkOut).append("\n");
-                        } catch (ParseException e) {
-                            e.printStackTrace();
+                            Date bStartD = sdf.parse(doc.getString("checkIn"));
+                            Date bEndD = sdf.parse(doc.getString("checkOut"));
+                            
+                            if (bStartD == null || bEndD == null) continue;
+                            
+                            // LOGIC CHUẨN: Hai khoảng thời gian (A, B) trùng nhau khi (StartA < EndB) và (EndA > StartB)
+                            // Nếu qStart == bEndD (Khách này đến đúng lúc khách kia đi) -> KHÔNG trùng.
+                            if (qStart < bEndD.getTime() && qEnd > bStartD.getTime()) {
+                                overlapped = true;
+                                break;
+                            }
                         }
-                    }
+                    } catch (Exception ignored) {}
 
-                    if (bookedRanges.isEmpty()) {
-                        tvBookedDates.setText("Phòng chưa có lịch đặt nào");
-                    } else {
-                        tvBookedDates.setText(sb.toString().trim());
-                    }
+                    if (overlapped) updateStatusUI(false, "Lịch đã trùng. Vui lòng chọn ngày khác!");
+                    else updateStatusUI(true, "Phòng hiện đang trống. Bạn có thể đặt!");
                 });
     }
 
-    void tinhTien() {
-        Calendar checkIn = getCalendarFromPicker(datePickerCheckIn);
-        Calendar checkOut = getCalendarFromPicker(datePickerCheckOut);
-
-        long diff = checkOut.getTimeInMillis() - checkIn.getTimeInMillis();
-        long soNgay = diff / (1000 * 60 * 60 * 24);
-
-        if (soNgay <= 0) {
-            tvTotalPrice.setText("Check-out phải sau Check-in");
-            return;
+    private void updateStatusUI(Boolean available, String message) {
+        tvAvailabilityStatus.setText(message);
+        if (available == null) {
+            btnConfirm.setEnabled(false); btnConfirm.setAlpha(0.5f); isAvailable = false;
+        } else if (available) {
+            cardAvailabilityStatus.setCardBackgroundColor(Color.parseColor("#E8F5E9"));
+            tvAvailabilityStatus.setTextColor(Color.parseColor("#2E7D32"));
+            ivStatusIcon.setImageResource(android.R.drawable.checkbox_on_background);
+            ivStatusIcon.setColorFilter(Color.parseColor("#2E7D32"));
+            btnConfirm.setEnabled(true); btnConfirm.setAlpha(1.0f); isAvailable = true;
+        } else {
+            cardAvailabilityStatus.setCardBackgroundColor(Color.parseColor("#FFEBEE"));
+            tvAvailabilityStatus.setTextColor(Color.parseColor("#C62828"));
+            ivStatusIcon.setImageResource(android.R.drawable.ic_delete);
+            ivStatusIcon.setColorFilter(Color.parseColor("#C62828"));
+            btnConfirm.setEnabled(false); btnConfirm.setAlpha(0.5f); isAvailable = false;
         }
-
-        double tong = soNgay * room.getPrice();
-        tvTotalPrice.setText(String.format("Tổng tiền: %,.0f VNĐ (%d đêm)", tong, soNgay));
     }
 
-    boolean isTrungLich(long newIn, long newOut) {
-        for (long[] range : bookedRanges) {
-            long existIn = range[0];
-            long existOut = range[1];
-            // Trùng lịch nếu: newIn < existOut VÀ newOut > existIn
-            if (newIn < existOut && newOut > existIn) {
-                return true;
-            }
+    private void calculateTotalPrice() {
+        if (checkInCalendar != null && checkOutCalendar != null) {
+            long diff = checkOutCalendar.getTimeInMillis() - checkInCalendar.getTimeInMillis();
+            long days = diff / (24 * 60 * 60 * 1000);
+            if (days > 0) tvTotalPrice.setText(String.format("%,.0f VNĐ", days * room.getPrice()));
+            else tvTotalPrice.setText("0 đ");
         }
-        return false;
     }
 
-    void datPhong() {
-        Calendar checkIn = getCalendarFromPicker(datePickerCheckIn);
-        Calendar checkOut = getCalendarFromPicker(datePickerCheckOut);
+    private void performBooking() {
+        String uid = FirebaseAuth.getInstance().getUid();
+        String bookingId = db.collection(Constants.COLLECTION_BOOKINGS).document().getId();
+        long days = (checkOutCalendar.getTimeInMillis() - checkInCalendar.getTimeInMillis()) / (24 * 60 * 60 * 1000);
+        
+        Booking booking = new Booking(bookingId, uid, room.getId(), room.getName(),
+                sdf.format(checkInCalendar.getTime()), sdf.format(checkOutCalendar.getTime()),
+                days * room.getPrice(), Constants.STATUS_PENDING);
 
-        long diff = checkOut.getTimeInMillis() - checkIn.getTimeInMillis();
-        long soNgay = diff / (1000 * 60 * 60 * 24);
-
-        if (soNgay <= 0) {
-            Toast.makeText(this, "Ngày không hợp lệ", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Kiểm tra trùng lịch
-        if (isTrungLich(checkIn.getTimeInMillis(), checkOut.getTimeInMillis())) {
-            Toast.makeText(this,
-                    "Phòng đã có người đặt trong khoảng thời gian này!\nVui lòng chọn ngày khác.",
-                    Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        String checkInStr = sdf.format(checkIn.getTime());
-        String checkOutStr = sdf.format(checkOut.getTime());
-        double tongTien = soNgay * room.getPrice();
-        String uid = mAuth.getCurrentUser().getUid();
-
-        Map<String, Object> bookingData = new HashMap<>();
-        bookingData.put("userId", uid);
-        bookingData.put("roomId", room.getId());
-        bookingData.put("roomName", room.getName());
-        bookingData.put("checkIn", checkInStr);
-        bookingData.put("checkOut", checkOutStr);
-        bookingData.put("totalPrice", tongTien);
-        bookingData.put("status", Constants.STATUS_PENDING);
-
-        db.collection(Constants.COLLECTION_BOOKINGS).add(bookingData)
-                .addOnSuccessListener(docRef -> {
-                    Booking booking = new Booking(
-                            docRef.getId(), uid, room.getId(),
-                            room.getName(), checkInStr, checkOutStr,
-                            tongTien, Constants.STATUS_PENDING
-                    );
-                    dbHelper.insertBooking(booking);
-
-                    // Không đổi status phòng nữa — phòng luôn available
-                    // Chỉ chặn theo ngày
-
-                    setResult(RESULT_OK);
-                    Toast.makeText(this, "Đặt phòng thành công!", Toast.LENGTH_SHORT).show();
+        db.collection(Constants.COLLECTION_BOOKINGS).document(bookingId).set(booking)
+                .addOnSuccessListener(unused -> {
+                    Toast.makeText(this, "Đặt phòng thành công! Đang chờ duyệt.", Toast.LENGTH_LONG).show();
                     finish();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
-    }
-
-    Calendar getCalendarFromPicker(DatePicker picker) {
-        Calendar cal = Calendar.getInstance();
-        cal.set(picker.getYear(), picker.getMonth(), picker.getDayOfMonth(), 0, 0, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        return cal;
     }
 }

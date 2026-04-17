@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:paddingHorizontal="8dp">
+        <ImageButton
+            android:id="@+id/btnBackPark"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_back_arrow"
+            android:layout_centerVertical="true" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tìm kiếm khu vui chơi"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_margin="16dp"
+        android:background="@drawable/bg_otp_input"
+        android:hint="Tìm điểm đến hoặc hoạt động"
+        android:paddingHorizontal="16dp"
+        android:textSize="14sp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerParks"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="12dp" />
+
+</LinearLayout>

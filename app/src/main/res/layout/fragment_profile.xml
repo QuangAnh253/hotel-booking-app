@@ -1,73 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="20dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hồ sơ cá nhân"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="24dp" />
-
-        <EditText
-            android:id="@+id/edtProfileName"
+        <!-- Phần 1: Vắn tắt tài khoản -->
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Họ và tên"
-            android:layout_marginBottom="12dp" />
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="30dp">
 
-        <EditText
-            android:id="@+id/edtProfilePhone"
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivProfileAvatar"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_centerHorizontal="true"
+                android:padding="2dp"
+                android:src="@drawable/ic_profile_modern"
+                app:shapeAppearanceOverlay="@style/CircleImage"
+                app:strokeColor="#e8952f"
+                app:strokeWidth="2dp"
+                app:tint="#bdbdbd" />
+
+            <TextView
+                android:id="@+id/tvProfileName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/ivProfileAvatar"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="16dp"
+                android:text="Tên của bạn"
+                android:textColor="@android:color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvProfileEmailSummary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvProfileName"
+                android:layout_centerHorizontal="true"
+                android:text="email@example.com"
+                android:textColor="#666" />
+
+            <ImageButton
+                android:id="@+id/btnEditProfileHeader"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_edit"
+                app:tint="#e8952f" />
+        </RelativeLayout>
+
+        <!-- Phần 2: Các chức năng -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Số điện thoại"
-            android:inputType="phone"
-            android:layout_marginBottom="12dp" />
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp">
 
-        <EditText
-            android:id="@+id/edtProfileEmail"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <!-- Sửa thông tin (Dạng Menu Item) -->
+                <TextView
+                    android:id="@+id/btnShowEditInfo"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Chỉnh sửa thông tin cá nhân" />
+
+                <View style="@style/Divider" />
+
+                <!-- Đổi mật khẩu -->
+                <TextView
+                    android:id="@+id/btnShowChangePass"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Đổi mật khẩu" />
+
+                <View style="@style/Divider" />
+
+                <!-- Đăng xuất -->
+                <TextView
+                    android:id="@+id/btnLogout"
+                    style="@style/AdminProfileMenuItem"
+                    android:text="Đăng xuất"
+                    android:textColor="#D32F2F" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Container cho các form (Sẽ hiện/ẩn bằng Java) -->
+        <LinearLayout
+            android:id="@+id/layoutEditFields"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email"
-            android:enabled="false"
-            android:layout_marginBottom="24dp" />
-
-        <Button
-            android:id="@+id/btnUpdateProfile"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Cập nhật thông tin"
-            android:layout_marginBottom="12dp" />
-
-        <EditText
-            android:id="@+id/edtNewPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Mật khẩu mới"
-            android:inputType="textPassword"
-            android:layout_marginBottom="12dp" />
-
-        <Button
-            android:id="@+id/btnChangePassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Đổi mật khẩu"
-            android:layout_marginBottom="24dp" />
-
-        <Button
-            android:id="@+id/btnLogout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Đăng xuất"
-            android:backgroundTint="#F44336" />
+            android:orientation="vertical"
+            android:layout_marginTop="20dp"
+            android:visibility="gone">
+            <!-- Các ô nhập liệu sẽ được xử lý trong logic Java nếu cần -->
+        </LinearLayout>
 
     </LinearLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

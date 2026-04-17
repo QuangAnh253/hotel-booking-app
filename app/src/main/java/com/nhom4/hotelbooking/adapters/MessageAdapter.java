@@ -10,9 +10,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.nhom4.hotelbooking.R;
 import com.nhom4.hotelbooking.models.Message;
-import com.nhom4.hotelbooking.utils.Constants;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -24,6 +24,9 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     List<Message> messageList;
     String currentUserId;
+    private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    private SimpleDateFormat fullFormat = new SimpleDateFormat("HH:mm dd/MM/yyyy", Locale.getDefault());
 
     public MessageAdapter(List<Message> messageList, String currentUserId) {
         this.messageList = messageList;
@@ -55,18 +58,52 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Message message = messageList.get(position);
-        String timeStr = new SimpleDateFormat("HH:mm", Locale.getDefault())
-                .format(new Date(message.getTimestamp()));
+        String timeStr = timeFormat.format(new Date(message.getTimestamp()));
 
+        TextView tvHeaderDate;
         if (holder instanceof SentViewHolder) {
-            SentViewHolder sent = (SentViewHolder) holder;
-            sent.tvMessageText.setText(message.getText());
-            sent.tvMessageTime.setText(timeStr);
+            SentViewHolder sentHolder = (SentViewHolder) holder;
+            sentHolder.tvMessageSent.setText(message.getText());
+            sentHolder.tvTimeSent.setText(timeStr);
+            tvHeaderDate = sentHolder.tvChatHeaderDate;
         } else {
-            ReceivedViewHolder received = (ReceivedViewHolder) holder;
-            received.tvSenderName.setText(message.getSenderName());
-            received.tvMessageText.setText(message.getText());
-            received.tvMessageTime.setText(timeStr);
+            ReceivedViewHolder receivedHolder = (ReceivedViewHolder) holder;
+            receivedHolder.tvMessageReceived.setText(message.getText());
+            receivedHolder.tvTimeReceived.setText(timeStr);
+            tvHeaderDate = receivedHolder.tvChatHeaderDate;
+        }
+
+        // Xử lý hiển thị Header Date
+        if (shouldShowHeader(position)) {
+            tvHeaderDate.setVisibility(View.VISIBLE);
+            tvHeaderDate.setText(getFormattedDate(message.getTimestamp()));
+        } else {
+            tvHeaderDate.setVisibility(View.GONE);
+        }
+    }
+
+    private boolean shouldShowHeader(int position) {
+        if (position == 0) return true;
+
+        Message currentMsg = messageList.get(position);
+        Message prevMsg = messageList.get(position - 1);
+
+        // Hiển thị nếu cách nhau hơn 30 phút
+        long diff = currentMsg.getTimestamp() - prevMsg.getTimestamp();
+        return diff > (30 * 60 * 1000); 
+    }
+
+    private String getFormattedDate(long timestamp) {
+        Calendar now = Calendar.getInstance();
+        Calendar msgDate = Calendar.getInstance();
+        msgDate.setTimeInMillis(timestamp);
+
+        if (now.get(Calendar.DATE) == msgDate.get(Calendar.DATE)) {
+            return "Hôm nay";
+        } else if (now.get(Calendar.DATE) - msgDate.get(Calendar.DATE) == 1) {
+            return "Hôm qua";
+        } else {
+            return dateFormat.format(new Date(timestamp));
         }
     }
 
@@ -76,23 +113,24 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     static class SentViewHolder extends RecyclerView.ViewHolder {
-        TextView tvMessageText, tvMessageTime;
+        TextView tvMessageSent, tvTimeSent, tvChatHeaderDate;
 
         public SentViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvMessageText = itemView.findViewById(R.id.tvMessageText);
-            tvMessageTime = itemView.findViewById(R.id.tvMessageTime);
+            tvMessageSent = itemView.findViewById(R.id.tvMessageSent);
+            tvTimeSent = itemView.findViewById(R.id.tvTimeSent);
+            tvChatHeaderDate = itemView.findViewById(R.id.tvChatHeaderDate);
         }
     }
 
     static class ReceivedViewHolder extends RecyclerView.ViewHolder {
-        TextView tvSenderName, tvMessageText, tvMessageTime;
+        TextView tvMessageReceived, tvTimeReceived, tvChatHeaderDate;
 
         public ReceivedViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvSenderName = itemView.findViewById(R.id.tvSenderName);
-            tvMessageText = itemView.findViewById(R.id.tvMessageText);
-            tvMessageTime = itemView.findViewById(R.id.tvMessageTime);
+            tvMessageReceived = itemView.findViewById(R.id.tvMessageReceived);
+            tvTimeReceived = itemView.findViewById(R.id.tvTimeReceived);
+            tvChatHeaderDate = itemView.findViewById(R.id.tvChatHeaderDate);
         }
     }
 }

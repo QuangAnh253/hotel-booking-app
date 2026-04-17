@@ -41,10 +41,15 @@ public class ChatConversationAdapter extends RecyclerView.Adapter<ChatConversati
 
         String userName = (String) conversation.get("userName");
         String lastMessage = (String) conversation.get("lastMessage");
+        String time = (String) conversation.get("lastMessageTimeStr"); // Thêm thời gian nếu có
         Boolean unread = (Boolean) conversation.get("unreadByAdmin");
 
         holder.tvConversationUserName.setText(userName != null ? userName : "Người dùng");
         holder.tvConversationLastMessage.setText(lastMessage != null ? lastMessage : "");
+        
+        if (holder.tvConversationTime != null && time != null) {
+            holder.tvConversationTime.setText(time);
+        }
 
         if (Boolean.TRUE.equals(unread)) {
             holder.tvUnreadDot.setVisibility(View.VISIBLE);
@@ -62,12 +67,14 @@ public class ChatConversationAdapter extends RecyclerView.Adapter<ChatConversati
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvConversationUserName, tvConversationLastMessage, tvUnreadDot;
+        TextView tvConversationUserName, tvConversationLastMessage, tvConversationTime;
+        View tvUnreadDot; // Đã đổi từ TextView thành View để khớp với layout mới
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvConversationUserName = itemView.findViewById(R.id.tvConversationUserName);
             tvConversationLastMessage = itemView.findViewById(R.id.tvConversationLastMessage);
+            tvConversationTime = itemView.findViewById(R.id.tvConversationTime);
             tvUnreadDot = itemView.findViewById(R.id.tvUnreadDot);
         }
     }

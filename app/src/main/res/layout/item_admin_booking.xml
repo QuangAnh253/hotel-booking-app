@@ -1,68 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="12dp"
-    android:layout_marginBottom="6dp"
-    android:background="@android:color/white">
-
-    <TextView
-        android:id="@+id/tvAdminBookingRoom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/tvAdminBookingUser"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="#555555"
-        android:layout_marginTop="4dp" />
-
-    <TextView
-        android:id="@+id/tvAdminBookingDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp" />
-
-    <TextView
-        android:id="@+id/tvAdminBookingTotal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="#1565C0"
-        android:layout_marginTop="4dp" />
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="3dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/tvAdminBookingRoomName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tên phòng"
+                android:textColor="@android:color/black"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvAdminBookingStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:background="#FFF3E0"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="PENDING"
+                android:textColor="#E65100"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
 
         <TextView
-            android:id="@+id/tvAdminBookingStatus"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textStyle="bold" />
-
-        <Button
-            android:id="@+id/btnApprove"
+            android:id="@+id/tvAdminBookingUser"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Duyệt"
-            android:textSize="12sp"
-            android:backgroundTint="#4CAF50"
-            android:layout_marginEnd="8dp" />
+            android:layout_marginTop="8dp"
+            android:text="Khách hàng: ..."
+            android:textColor="#666"
+            android:textSize="14sp" />
 
-        <Button
-            android:id="@+id/btnReject"
+        <TextView
+            android:id="@+id/tvAdminBookingDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Huỷ"
-            android:textSize="12sp"
-            android:backgroundTint="#F44336" />
+            android:layout_marginTop="4dp"
+            android:text="Ngày: 12/04/2024"
+            android:textColor="#666"
+            android:textSize="14sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#EEEEEE" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/tvAdminBookingTotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tổng: 1.200.000 đ"
+                android:textColor="#e8952f"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_centerVertical="true" />
+
+            <LinearLayout
+                android:id="@+id/layoutAdminActions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRejectBooking"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Từ chối"
+                    android:textColor="#D32F2F"
+                    android:textSize="12sp"
+                    android:textAllCaps="false" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnApproveBooking"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Duyệt"
+                    android:textSize="12sp"
+                    android:textAllCaps="false"
+                    app:backgroundTint="#2E7D32"
+                    app:cornerRadius="8dp" />
+            </LinearLayout>
+        </RelativeLayout>
 
     </LinearLayout>
-</LinearLayout>
+</androidx.cardview.widget.CardView>

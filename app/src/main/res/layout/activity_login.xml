@@ -1,48 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center">
+    android:background="@android:color/white">
+
+    <!-- Header Toolbar -->
+    <ImageButton
+        android:id="@+id/btnBackLogin"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_back_arrow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@android:color/black" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Đăng nhập"
-        android:textSize="26sp"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:layout_marginBottom="32dp" />
+        app:layout_constraintBottom_toBottomOf="@+id/btnBackLogin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btnBackLogin" />
 
-    <EditText
-        android:id="@+id/edtEmail"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Email"
-        android:inputType="textEmailAddress"
-        android:layout_marginBottom="12dp" />
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnBackLogin">
 
-    <EditText
-        android:id="@+id/edtPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Mật khẩu"
-        android:inputType="textPassword"
-        android:layout_marginBottom="24dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="24dp">
 
-    <Button
-        android:id="@+id/btnLogin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Đăng nhập"
-        android:layout_marginBottom="12dp" />
+            <!-- Logo -->
+            <ImageView
+                android:id="@+id/ivLogoLogin"
+                android:layout_width="150dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="32dp"
+                android:src="@mipmap/logo_hotel" />
 
-    <TextView
-        android:id="@+id/tvGoRegister"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Chưa có tài khoản? Đăng ký"
-        android:textColor="
-#1565C0" />
+            <!-- Email/SĐT -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp">
 
-</LinearLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Email/ Số điện thoại *"
+                    android:inputType="textEmailAddress" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Mật khẩu -->
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:passwordToggleEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Mật khẩu *"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Quên mật khẩu -->
+            <TextView
+                android:id="@+id/tvForgotPassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="12dp"
+                android:text="Quên mật khẩu?"
+                android:textColor="#303F9F"
+                android:textSize="14sp" />
+
+            <!-- Nút Đăng nhập -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLogin"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginTop="32dp"
+                android:text="Đăng nhập ngay"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                app:backgroundTint="#e8952f"
+                app:cornerRadius="12dp" />
+
+            <!-- Chuyển sang Đăng ký -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="32dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bạn chưa có tài khoản Hotel Booking? "
+                    android:textColor="#555555" />
+
+                <TextView
+                    android:id="@+id/tvGoRegister"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Đăng ký ngay"
+                    android:textColor="#303F9F"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

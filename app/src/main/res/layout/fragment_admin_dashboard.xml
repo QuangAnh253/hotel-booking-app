@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Quản trị hệ thống"
+            android:textColor="@android:color/black"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp" />
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:alignmentMode="alignMargins"
+            android:columnOrderPreserved="false">
+
+            <!-- Quản lý Phòng -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardManageRooms"
+                style="@style/AdminDashboardCard">
+                <LinearLayout style="@style/AdminDashboardCardContent">
+                    <ImageView style="@style/AdminDashboardIcon" android:src="@drawable/ic_menu_hotel" />
+                    <TextView style="@style/AdminDashboardText" android:text="Quản lý Phòng" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Quản lý Hãng hàng không -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardManageAirlines"
+                style="@style/AdminDashboardCard">
+                <LinearLayout style="@style/AdminDashboardCardContent">
+                    <ImageView style="@style/AdminDashboardIcon" android:src="@drawable/ic_menu_flight" />
+                    <TextView style="@style/AdminDashboardText" android:text="Quản lý Hãng bay" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Quản lý Tin tức -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardManageNews"
+                style="@style/AdminDashboardCard">
+                <LinearLayout style="@style/AdminDashboardCardContent">
+                    <ImageView style="@style/AdminDashboardIcon" android:src="@drawable/ic_menu_news" />
+                    <TextView style="@style/AdminDashboardText" android:text="Quản lý Tin tức" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Quản lý Khu vui chơi -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardManageParks"
+                style="@style/AdminDashboardCard">
+                <LinearLayout style="@style/AdminDashboardCardContent">
+                    <ImageView style="@style/AdminDashboardIcon" android:src="@drawable/ic_menu_park" />
+                    <TextView style="@style/AdminDashboardText" android:text="Quản lý Park" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Chat CSKH -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardManageChat"
+                style="@style/AdminDashboardCard">
+                <LinearLayout style="@style/AdminDashboardCardContent">
+                    <ImageView style="@style/AdminDashboardIcon" android:src="@drawable/ic_chat_modern" />
+                    <TextView style="@style/AdminDashboardText" android:text="Hỗ trợ khách" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Booking -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardManageBookings"
+                style="@style/AdminDashboardCard">
+                <LinearLayout style="@style/AdminDashboardCardContent">
+                    <ImageView style="@style/AdminDashboardIcon" android:src="@drawable/ic_history_modern" />
+                    <TextView style="@style/AdminDashboardText" android:text="Quản lý Booking" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Quản lý Tài khoản -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardManageAccounts"
+                style="@style/AdminDashboardCard">
+                <LinearLayout style="@style/AdminDashboardCardContent">
+                    <ImageView style="@style/AdminDashboardIcon" android:src="@drawable/ic_profile_modern" />
+                    <TextView style="@style/AdminDashboardText" android:text="Quản lý User" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </GridLayout>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

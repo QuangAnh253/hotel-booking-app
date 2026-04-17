@@ -1,26 +1,185 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="12dp">
+    android:background="#F8F8F8">
 
-    <EditText
-        android:id="@+id/edtSearch"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Tìm kiếm phòng..."
-        android:layout_marginBottom="8dp" />
+        android:orientation="vertical">
 
-    <Spinner
-        android:id="@+id/spinnerFilter"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp" />
+        <!-- PHẦN 1: WELCOME HEADER -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:background="#1565C0"> <!-- Màu nền dự phòng -->
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerRooms"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+            <!-- Gỡ src để nạp qua Glide chống crash -->
+            <ImageView
+                android:id="@+id/ivHomeHeaderBg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop" />
 
-</LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#4D000000" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:paddingHorizontal="20dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Xin chào,"
+                        android:textColor="@android:color/white"
+                        android:textSize="18sp" />
+                    <TextView
+                        android:id="@+id/tvHomeUsername"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Khách hàng"
+                        android:textColor="@android:color/white"
+                        android:textSize="22sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/ivNotification"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentEnd="true"
+                    android:src="@drawable/ic_notification" />
+            </RelativeLayout>
+        </FrameLayout>
+
+        <!-- PHẦN 2: GRID MENU -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="-40dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp">
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:padding="8dp"
+                android:rowCount="2">
+
+                <LinearLayout
+                    android:id="@+id/menuHotel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <ImageView android:layout_width="35dp" android:layout_height="35dp" android:src="@drawable/ic_menu_hotel" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Khách sạn" android:layout_marginTop="8dp" android:textSize="13sp" android:textColor="#333" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/menuFlight"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <ImageView android:layout_width="35dp" android:layout_height="35dp" android:src="@drawable/ic_menu_flight" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vé máy bay" android:layout_marginTop="8dp" android:textSize="13sp" android:textColor="#333" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/menuNews"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <ImageView android:layout_width="35dp" android:layout_height="35dp" android:src="@drawable/ic_menu_news" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tin tức" android:layout_marginTop="8dp" android:textSize="13sp" android:textColor="#333" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/menuPark"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <ImageView android:layout_width="35dp" android:layout_height="35dp" android:src="@drawable/ic_menu_park" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="VinWonders" android:layout_marginTop="8dp" android:textSize="13sp" android:textColor="#333" />
+                </LinearLayout>
+            </GridLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- ƯU ĐÃI & KHUYẾN MẠI -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:text="Ưu đãi &amp; khuyến mại"
+            android:textColor="#333"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerParksHome"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:paddingHorizontal="12dp" />
+
+        <!-- GỢI Ý CHO BẠN -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:text="Gợi ý cho bạn"
+            android:textColor="#333"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerSuggestions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:paddingHorizontal="12dp" />
+
+        <!-- CẨM NANG DU LỊCH -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:text="Cẩm nang du lịch"
+            android:textColor="#333"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerNewsHome"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:paddingHorizontal="12dp"
+            android:paddingBottom="80dp" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

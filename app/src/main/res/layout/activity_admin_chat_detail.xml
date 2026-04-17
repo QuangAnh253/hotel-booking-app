@@ -1,46 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:background="#F0F2F5">
 
+    <!-- Toolbar trắng sang trọng -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarAdminChat"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#1565C0"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+        android:background="#FFFFFF"
+        android:elevation="4dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageButton
+                android:id="@+id/btnBackAdminChat"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_back_arrow"
+                android:layout_centerVertical="true"
+                app:tint="#333" />
+
+            <TextView
+                android:id="@+id/tvAdminChatTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hỗ trợ khách hàng"
+                android:textColor="#333"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_toEndOf="@id/btnBackAdminChat"
+                android:layout_marginStart="12dp"
+                android:layout_centerVertical="true" />
+        </RelativeLayout>
+    </androidx.appcompat.widget.Toolbar>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerAdminMessages"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="8dp" />
+        android:clipToPadding="false"
+        android:paddingHorizontal="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/layoutAdminInput"
+        app:layout_constraintTop_toBottomOf="@+id/toolbarAdminChat" />
 
-    <LinearLayout
+    <!-- Khu vực soạn tin nhắn mới -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/layoutAdminInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp"
-        android:background="#F5F5F5">
+        app:cardElevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <EditText
-            android:id="@+id/edtAdminMessage"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="Trả lời khách hàng..."
-            android:background="@android:color/white"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
             android:padding="10dp"
-            android:layout_marginEnd="8dp" />
+            android:background="@android:color/white">
 
-        <Button
-            android:id="@+id/btnAdminSend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Gửi"
-            android:backgroundTint="#1565C0" />
+            <EditText
+                android:id="@+id/edtAdminMessage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/bg_otp_input"
+                android:hint="Trả lời khách hàng..."
+                android:maxLines="4"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp"
+                android:textSize="15sp" />
 
-    </LinearLayout>
-</LinearLayout>
+            <ImageButton
+                android:id="@+id/btnAdminSend"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_send"
+                app:tint="#e8952f" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

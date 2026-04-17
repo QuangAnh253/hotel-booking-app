@@ -2,163 +2,188 @@ package com.nhom4.hotelbooking.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.Toast;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.nhom4.hotelbooking.R;
+import com.nhom4.hotelbooking.activities.AirlineGuestActivity;
+import com.nhom4.hotelbooking.activities.MainActivity;
+import com.nhom4.hotelbooking.activities.NewsActivity;
+import com.nhom4.hotelbooking.activities.ParkActivity;
 import com.nhom4.hotelbooking.activities.RoomDetailActivity;
-import com.nhom4.hotelbooking.adapters.RoomAdapter;
+import com.nhom4.hotelbooking.adapters.NewsAdapter;
+import com.nhom4.hotelbooking.adapters.ParkHorizontalAdapter;
+import com.nhom4.hotelbooking.adapters.RoomSuggestionAdapter;
+import com.nhom4.hotelbooking.models.News;
+import com.nhom4.hotelbooking.models.Park;
 import com.nhom4.hotelbooking.models.Room;
 import com.nhom4.hotelbooking.utils.Constants;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class HomeFragment extends Fragment {
 
-    RecyclerView recyclerRooms;
-    EditText edtSearch;
-    Spinner spinnerFilter;
-
-    FirebaseFirestore db;
-    RoomAdapter adapter;
-
-    List<Room> roomList;
-    List<Room> roomListFull;
+    private TextView tvHomeUsername;
+    private ImageView ivNotification, ivHomeHeaderBg;
+    private RecyclerView recyclerParksHome, recyclerSuggestions, recyclerNewsHome;
+    private FirebaseFirestore db;
+    private FirebaseAuth mAuth;
+    
+    private List<Room> suggestionList = new ArrayList<>();
+    private RoomSuggestionAdapter suggestionAdapter;
+    private List<Park> parkList = new ArrayList<>();
+    private ParkHorizontalAdapter parkAdapter;
+    private List<News> newsList = new ArrayList<>();
+    private NewsAdapter newsAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-        setHasOptionsMenu(true);
-
-        recyclerRooms = view.findViewById(R.id.recyclerRooms);
-        edtSearch = view.findViewById(R.id.edtSearch);
-        spinnerFilter = view.findViewById(R.id.spinnerFilter);
 
         db = FirebaseFirestore.getInstance();
-        roomList = new ArrayList<>();
-        roomListFull = new ArrayList<>();
+        mAuth = FirebaseAuth.getInstance();
 
-        recyclerRooms.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new RoomAdapter(roomList, room -> {
-            Intent intent = new Intent(getActivity(), RoomDetailActivity.class);
-            intent.putExtra(Constants.EXTRA_ROOM, room);
-            startActivity(intent);
+        tvHomeUsername = view.findViewById(R.id.tvHomeUsername);
+        ivNotification = view.findViewById(R.id.ivNotification);
+        ivHomeHeaderBg = view.findViewById(R.id.ivHomeHeaderBg);
+        recyclerParksHome = view.findViewById(R.id.recyclerParksHome);
+        recyclerSuggestions = view.findViewById(R.id.recyclerSuggestions);
+        recyclerNewsHome = view.findViewById(R.id.recyclerNewsHome);
+
+        // GIẢI PHÁP CHỐNG CRASH TẬN GỐC CHO SAMSUNG S7 EDGE:
+        // Nạp ảnh header lớn qua Glide với độ phân giải thấp (Downsampling)
+        if (ivHomeHeaderBg != null) {
+            Glide.with(this)
+                    .load(R.drawable.bg_home_header)
+                    .override(1080, 500) // Thu nhỏ ảnh ngay trong RAM
+                    .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .into(ivHomeHeaderBg);
+        }
+
+        setupUserInfo();
+        setupMenus(view);
+        setupParksHome();      
+        setupSuggestions();    
+        setupNewsHome();       
+        
+        if (parkList.isEmpty()) loadParksData();
+        if (suggestionList.isEmpty()) loadRandomRooms();
+        if (newsList.isEmpty()) loadLatestNews();
+
+        ivNotification.setOnClickListener(v -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).switchTab(R.id.nav_history);
+            }
         });
-        recyclerRooms.setAdapter(adapter);
-
-        setupSpinner();
-        loadRooms();
-        setupSearch();
 
         return view;
     }
 
-    void loadRooms() {
-        db.collection(Constants.COLLECTION_ROOMS)
-                .get()
+    private void setupUserInfo() {
+        if (mAuth.getCurrentUser() != null) {
+            db.collection(Constants.COLLECTION_USERS).document(mAuth.getUid()).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (isAdded() && documentSnapshot.exists()) {
+                            tvHomeUsername.setText(documentSnapshot.getString("name"));
+                        }
+                    });
+        }
+    }
+
+    private void setupMenus(View v) {
+        v.findViewById(R.id.menuHotel).setOnClickListener(view -> 
+                ((MainActivity) getActivity()).switchTab(R.id.nav_more_redirect));
+        v.findViewById(R.id.menuNews).setOnClickListener(view -> 
+                startActivity(new Intent(getActivity(), NewsActivity.class)));
+        v.findViewById(R.id.menuPark).setOnClickListener(view -> 
+                startActivity(new Intent(getActivity(), ParkActivity.class)));
+        v.findViewById(R.id.menuFlight).setOnClickListener(view -> 
+                startActivity(new Intent(getActivity(), AirlineGuestActivity.class)));
+    }
+
+    private void setupParksHome() {
+        recyclerParksHome.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        recyclerParksHome.setHasFixedSize(true);
+        recyclerParksHome.setNestedScrollingEnabled(false);
+        parkAdapter = new ParkHorizontalAdapter(parkList);
+        recyclerParksHome.setAdapter(parkAdapter);
+    }
+
+    private void setupSuggestions() {
+        recyclerSuggestions.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        recyclerSuggestions.setHasFixedSize(true);
+        recyclerSuggestions.setNestedScrollingEnabled(false);
+        suggestionAdapter = new RoomSuggestionAdapter(suggestionList, room -> {
+            Intent intent = new Intent(getActivity(), RoomDetailActivity.class);
+            intent.putExtra(Constants.EXTRA_ROOM, room);
+            startActivity(intent);
+        });
+        recyclerSuggestions.setAdapter(suggestionAdapter);
+    }
+
+    private void setupNewsHome() {
+        recyclerNewsHome.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        recyclerNewsHome.setHasFixedSize(true);
+        recyclerNewsHome.setNestedScrollingEnabled(false);
+        newsAdapter = new NewsAdapter(newsList, true);
+        recyclerNewsHome.setAdapter(newsAdapter);
+    }
+
+    private void loadParksData() {
+        db.collection(Constants.COLLECTION_PARKS).limit(6).get()
                 .addOnSuccessListener(querySnapshots -> {
-                    roomList.clear();
-                    roomListFull.clear();
+                    if (!isAdded()) return;
+                    parkList.clear();
                     for (QueryDocumentSnapshot doc : querySnapshots) {
-                        Room room = doc.toObject(Room.class);
-                        room.setId(doc.getId());
-                        roomList.add(room);
-                        roomListFull.add(room);
+                        parkList.add(doc.toObject(Park.class));
                     }
-                    adapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Lỗi tải danh sách phòng", Toast.LENGTH_SHORT).show();
+                    parkAdapter.notifyDataSetChanged();
                 });
     }
 
-    void setupSpinner() {
-        String[] types = {"Tất cả", "Standard", "Deluxe", "Suite"};
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(getContext(),
-                android.R.layout.simple_spinner_item, types);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerFilter.setAdapter(spinnerAdapter);
-
-        spinnerFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selected = types[position];
-                filterByType(selected);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
-    }
-
-    void filterByType(String type) {
-        roomList.clear();
-        if (type.equals("Tất cả")) {
-            roomList.addAll(roomListFull);
-        } else {
-            for (Room room : roomListFull) {
-                if (room.getType().equals(type)) {
-                    roomList.add(room);
-                }
-            }
-        }
-        adapter.notifyDataSetChanged();
-    }
-
-    void setupSearch() {
-        edtSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String keyword = s.toString().toLowerCase().trim();
-                roomList.clear();
-                for (Room room : roomListFull) {
-                    if (room.getName().toLowerCase().contains(keyword)) {
-                        roomList.add(room);
+    private void loadLatestNews() {
+        db.collection(Constants.COLLECTION_NEWS)
+                .orderBy("date", Query.Direction.DESCENDING)
+                .limit(6)
+                .get()
+                .addOnSuccessListener(querySnapshots -> {
+                    if (!isAdded()) return;
+                    newsList.clear();
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
+                        newsList.add(doc.toObject(News.class));
                     }
-                }
-                adapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
+                    newsAdapter.notifyDataSetChanged();
+                });
     }
 
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_home, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.menu_sort_price) {
-            roomList.sort((r1, r2) -> Double.compare(r1.getPrice(), r2.getPrice()));
-            adapter.notifyDataSetChanged();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    private void loadRandomRooms() {
+        db.collection(Constants.COLLECTION_ROOMS).get()
+                .addOnSuccessListener(querySnapshots -> {
+                    if (!isAdded()) return;
+                    suggestionList.clear();
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
+                        Room room = doc.toObject(Room.class);
+                        room.setId(doc.getId());
+                        suggestionList.add(room);
+                    }
+                    Collections.shuffle(suggestionList);
+                    suggestionAdapter.notifyDataSetChanged();
+                });
     }
 }
