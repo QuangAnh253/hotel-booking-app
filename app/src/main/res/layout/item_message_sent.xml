@@ -8,7 +8,6 @@
     android:paddingHorizontal="16dp"
     android:paddingVertical="4dp">
 
-    <!-- Nhãn thời gian hệ thống (Hiện khi khoảng cách tin nhắn xa) -->
     <TextView
         android:id="@+id/tvChatHeaderDate"
         android:layout_width="wrap_content"

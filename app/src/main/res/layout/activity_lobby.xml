@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:background="#1565C0">
 
-    <!-- Đây là ImageView sẽ giữ ảnh nền, gỡ bỏ android:src để tránh crash -->
     <ImageView
         android:id="@+id/ivBackgroundLobby"
         android:layout_width="match_parent"

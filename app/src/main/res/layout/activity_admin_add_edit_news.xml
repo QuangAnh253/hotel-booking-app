@@ -46,7 +46,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Khu vực chọn ảnh -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -113,7 +112,6 @@
         app:cornerRadius="12dp"
         app:layout_constraintBottom_toBottomOf="parent" />
 
-    <!-- Lớp phủ Loading -->
     <FrameLayout
         android:id="@+id/layoutLoading"
         android:layout_width="match_parent"

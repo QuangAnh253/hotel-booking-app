@@ -46,7 +46,6 @@ public class AdminAddEditNewsActivity extends AppCompatActivity {
             result -> {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                     imageUri = result.getData().getData();
-                    // Dùng Glide để load ảnh xem trước thay vì setImageURI để tránh tràn RAM
                     Glide.with(this).load(imageUri).into(imgNewsSelect);
                 }
             }

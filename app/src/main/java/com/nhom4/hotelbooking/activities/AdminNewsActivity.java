@@ -62,8 +62,7 @@ public class AdminNewsActivity extends AppCompatActivity {
         recyclerAdminNews.setAdapter(adapter);
 
         findViewById(R.id.btnBackAdminNews).setOnClickListener(v -> finish());
-        
-        // Gán sự kiện cho nút Thêm mới
+
         if (fabAddNews != null) {
             fabAddNews.setOnClickListener(v -> {
                 Intent intent = new Intent(AdminNewsActivity.this, AdminAddEditNewsActivity.class);

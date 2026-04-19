@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:background="#1565C0">
 
-    <!-- Hình nền sẽ nạp qua Glide để tránh crash tràn RAM -->
     <ImageView
         android:id="@+id/ivSplashBg"
         android:layout_width="match_parent"

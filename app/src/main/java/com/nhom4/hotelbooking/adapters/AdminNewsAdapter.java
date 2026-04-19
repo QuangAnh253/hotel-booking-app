@@ -47,7 +47,7 @@ public class AdminNewsAdapter extends RecyclerView.Adapter<AdminNewsAdapter.Admi
 
         Glide.with(holder.itemView.getContext())
                 .load(news.getImageUrl())
-                .placeholder(R.mipmap.ic_launcher)
+                .placeholder(R.mipmap.logo_hotel)
                 .into(holder.imgAdminNews);
 
         holder.btnAdminNewsMenu.setOnClickListener(v -> {

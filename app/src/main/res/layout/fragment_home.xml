@@ -10,18 +10,15 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- PHẦN 1: WELCOME HEADER -->
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:background="#1565C0"> <!-- Màu nền dự phòng -->
+            android:layout_height="220dp">
 
-            <!-- Gỡ src để nạp qua Glide chống crash -->
             <ImageView
-                android:id="@+id/ivHomeHeaderBg"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop" />
+                android:scaleType="centerCrop"
+                android:src="@drawable/bg_home_header" />
 
             <View
                 android:layout_width="match_parent"
@@ -63,7 +60,6 @@
             </RelativeLayout>
         </FrameLayout>
 
-        <!-- PHẦN 2: GRID MENU -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -129,7 +125,6 @@
             </GridLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- ƯU ĐÃI & KHUYẾN MẠI -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -146,7 +141,6 @@
             android:clipToPadding="false"
             android:paddingHorizontal="12dp" />
 
-        <!-- GỢI Ý CHO BẠN -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -163,7 +157,6 @@
             android:clipToPadding="false"
             android:paddingHorizontal="12dp" />
 
-        <!-- CẨM NANG DU LỊCH -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

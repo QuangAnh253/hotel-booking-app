@@ -1,8 +1,19 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Base.Theme.HotelBookingApp" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Đổi màu chủ đạo hệ thống sang vàng cam -->
+        <item name="colorPrimary">@color/primary_gold</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">#e8952f</item>
+        <item name="colorOutline">@color/primary_gold</item>
     </style>
 
     <style name="Theme.HotelBookingApp" parent="Base.Theme.HotelBookingApp" />
+
+    <!-- Style cho TextInputLayout để đổi màu viền khi focus -->
+    <style name="CustomInputStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/primary_gold</item>
+        <item name="hintTextColor">@color/primary_gold</item>
+    </style>
 
     <style name="OtpEditTextStyle">
         <item name="android:layout_width">40dp</item>

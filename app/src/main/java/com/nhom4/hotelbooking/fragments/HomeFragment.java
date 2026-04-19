@@ -7,13 +7,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -39,7 +38,6 @@ import java.util.List;
 public class HomeFragment extends Fragment {
 
     private TextView tvHomeUsername;
-    private ImageView ivNotification, ivHomeHeaderBg;
     private RecyclerView recyclerParksHome, recyclerSuggestions, recyclerNewsHome;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
@@ -59,34 +57,17 @@ public class HomeFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
 
         tvHomeUsername = view.findViewById(R.id.tvHomeUsername);
-        ivNotification = view.findViewById(R.id.ivNotification);
-        ivHomeHeaderBg = view.findViewById(R.id.ivHomeHeaderBg);
         recyclerParksHome = view.findViewById(R.id.recyclerParksHome);
         recyclerSuggestions = view.findViewById(R.id.recyclerSuggestions);
         recyclerNewsHome = view.findViewById(R.id.recyclerNewsHome);
 
-        // GIẢI PHÁP CHỐNG CRASH TẬN GỐC CHO SAMSUNG S7 EDGE:
-        // Nạp ảnh header lớn qua Glide với độ phân giải thấp (Downsampling)
-        if (ivHomeHeaderBg != null) {
-            Glide.with(this)
-                    .load(R.drawable.bg_home_header)
-                    .override(1080, 500) // Thu nhỏ ảnh ngay trong RAM
-                    .centerCrop()
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .into(ivHomeHeaderBg);
-        }
-
         setupUserInfo();
         setupMenus(view);
-        setupParksHome();      
-        setupSuggestions();    
-        setupNewsHome();       
+        setupRecyclerViews();
         
-        if (parkList.isEmpty()) loadParksData();
-        if (suggestionList.isEmpty()) loadRandomRooms();
-        if (newsList.isEmpty()) loadLatestNews();
+        loadAllData();
 
-        ivNotification.setOnClickListener(v -> {
+        view.findViewById(R.id.ivNotification).setOnClickListener(v -> {
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).switchTab(R.id.nav_history);
             }
@@ -117,73 +98,59 @@ public class HomeFragment extends Fragment {
                 startActivity(new Intent(getActivity(), AirlineGuestActivity.class)));
     }
 
-    private void setupParksHome() {
+    private void setupRecyclerViews() {
         recyclerParksHome.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        recyclerParksHome.setHasFixedSize(true);
-        recyclerParksHome.setNestedScrollingEnabled(false);
         parkAdapter = new ParkHorizontalAdapter(parkList);
         recyclerParksHome.setAdapter(parkAdapter);
-    }
 
-    private void setupSuggestions() {
         recyclerSuggestions.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        recyclerSuggestions.setHasFixedSize(true);
-        recyclerSuggestions.setNestedScrollingEnabled(false);
         suggestionAdapter = new RoomSuggestionAdapter(suggestionList, room -> {
             Intent intent = new Intent(getActivity(), RoomDetailActivity.class);
             intent.putExtra(Constants.EXTRA_ROOM, room);
             startActivity(intent);
         });
         recyclerSuggestions.setAdapter(suggestionAdapter);
-    }
 
-    private void setupNewsHome() {
         recyclerNewsHome.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        recyclerNewsHome.setHasFixedSize(true);
-        recyclerNewsHome.setNestedScrollingEnabled(false);
         newsAdapter = new NewsAdapter(newsList, true);
         recyclerNewsHome.setAdapter(newsAdapter);
     }
 
+    private void loadAllData() {
+        if (parkList.isEmpty()) loadParksData();
+        if (suggestionList.isEmpty()) loadRandomRooms();
+        if (newsList.isEmpty()) loadLatestNews();
+    }
+
     private void loadParksData() {
-        db.collection(Constants.COLLECTION_PARKS).limit(6).get()
-                .addOnSuccessListener(querySnapshots -> {
-                    if (!isAdded()) return;
-                    parkList.clear();
-                    for (QueryDocumentSnapshot doc : querySnapshots) {
-                        parkList.add(doc.toObject(Park.class));
-                    }
-                    parkAdapter.notifyDataSetChanged();
-                });
+        db.collection(Constants.COLLECTION_PARKS).limit(6).get().addOnSuccessListener(snap -> {
+            if (!isAdded()) return;
+            parkList.clear();
+            for (QueryDocumentSnapshot doc : snap) parkList.add(doc.toObject(Park.class));
+            parkAdapter.notifyDataSetChanged();
+        });
     }
 
     private void loadLatestNews() {
-        db.collection(Constants.COLLECTION_NEWS)
-                .orderBy("date", Query.Direction.DESCENDING)
-                .limit(6)
-                .get()
-                .addOnSuccessListener(querySnapshots -> {
-                    if (!isAdded()) return;
-                    newsList.clear();
-                    for (QueryDocumentSnapshot doc : querySnapshots) {
-                        newsList.add(doc.toObject(News.class));
-                    }
-                    newsAdapter.notifyDataSetChanged();
-                });
+        db.collection(Constants.COLLECTION_NEWS).orderBy("date", Query.Direction.DESCENDING).limit(6).get().addOnSuccessListener(snap -> {
+            if (!isAdded()) return;
+            newsList.clear();
+            for (QueryDocumentSnapshot doc : snap) newsList.add(doc.toObject(News.class));
+            newsAdapter.notifyDataSetChanged();
+        });
     }
 
     private void loadRandomRooms() {
-        db.collection(Constants.COLLECTION_ROOMS).get()
-                .addOnSuccessListener(querySnapshots -> {
-                    if (!isAdded()) return;
-                    suggestionList.clear();
-                    for (QueryDocumentSnapshot doc : querySnapshots) {
-                        Room room = doc.toObject(Room.class);
-                        room.setId(doc.getId());
-                        suggestionList.add(room);
-                    }
-                    Collections.shuffle(suggestionList);
-                    suggestionAdapter.notifyDataSetChanged();
-                });
+        db.collection(Constants.COLLECTION_ROOMS).get().addOnSuccessListener(snap -> {
+            if (!isAdded()) return;
+            suggestionList.clear();
+            for (QueryDocumentSnapshot doc : snap) {
+                Room r = doc.toObject(Room.class);
+                r.setId(doc.getId());
+                suggestionList.add(r);
+            }
+            Collections.shuffle(suggestionList);
+            suggestionAdapter.notifyDataSetChanged();
+        });
     }
 }

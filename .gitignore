@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Firebase configuration file (Lưu ý bảo mật API Key)
+app/google-services.json

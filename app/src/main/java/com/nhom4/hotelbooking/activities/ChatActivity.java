@@ -29,7 +29,7 @@ public class ChatActivity extends AppCompatActivity {
     Toolbar toolbarChat;
     RecyclerView recyclerMessages;
     EditText edtMessage;
-    ImageButton btnSend; // Đã sửa từ Button sang ImageButton
+    ImageButton btnSend;
 
     FirebaseFirestore db;
     FirebaseAuth mAuth;
@@ -45,7 +45,6 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        // Ánh xạ theo giao diện mới
         toolbarChat = findViewById(R.id.toolbarChat);
         recyclerMessages = findViewById(R.id.recyclerMessages);
         edtMessage = findViewById(R.id.edtMessage);
@@ -55,8 +54,7 @@ public class ChatActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
-        
-        // Nút back trên giao diện mới
+
         if (findViewById(R.id.btnBackChat) != null) {
             findViewById(R.id.btnBackChat).setOnClickListener(v -> finish());
         }
@@ -70,8 +68,7 @@ public class ChatActivity extends AppCompatActivity {
         }
 
         currentUserId = mAuth.getCurrentUser().getUid();
-        
-        // Lấy tên thật từ Firestore thay vì email để chat chuyên nghiệp hơn
+
         db.collection(Constants.COLLECTION_USERS).document(currentUserId).get()
                 .addOnSuccessListener(snap -> {
                     if (snap.exists()) {

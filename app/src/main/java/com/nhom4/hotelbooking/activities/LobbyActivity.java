@@ -2,6 +2,7 @@ package com.nhom4.hotelbooking.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
@@ -23,16 +24,13 @@ public class LobbyActivity extends AppCompatActivity {
             getSupportActionBar().hide();
         }
 
-        // GIẢI PHÁP CHỐNG CRASH TẬN GỐC:
-        // Sử dụng Glide để nạp ảnh local giúp tối ưu bộ nhớ.
-        // .override() giúp ép ảnh về kích thước màn hình HD thay vì nạp ảnh gốc 4K/8K.
         ImageView ivBackground = findViewById(R.id.ivBackgroundLobby);
         if (ivBackground != null) {
             Glide.with(this)
                     .load(R.drawable.bg_lobby)
-                    .override(720, 1280) // Giảm độ phân giải xuống mức an toàn
+                    .override(1080, 1920)
                     .centerCrop()
-                    .diskCacheStrategy(DiskCacheStrategy.NONE) // Không lưu cache để tiết kiệm bộ nhớ
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(ivBackground);
         }
 

@@ -51,14 +51,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void switchTab(int menuId) {
         if (menuId == R.id.nav_more_redirect) {
-            // Chuyển sang fragment đặt phòng (Lưu trú)
             loadFragment(new RoomFragment());
         } else {
             bottomNav.setSelectedItemId(menuId);
         }
     }
 
-    // Đổi thành public để các Fragment có thể gọi được
     public void loadFragment(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()

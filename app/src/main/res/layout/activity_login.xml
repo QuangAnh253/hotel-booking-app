@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <!-- Header Toolbar -->
     <ImageButton
         android:id="@+id/btnBackLogin"
         android:layout_width="48dp"
@@ -43,7 +42,6 @@
             android:orientation="vertical"
             android:padding="24dp">
 
-            <!-- Logo -->
             <ImageView
                 android:id="@+id/ivLogoLogin"
                 android:layout_width="150dp"
@@ -52,7 +50,6 @@
                 android:layout_marginBottom="32dp"
                 android:src="@mipmap/logo_hotel" />
 
-            <!-- Email/SĐT -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
@@ -71,7 +68,6 @@
                     android:inputType="textEmailAddress" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Mật khẩu -->
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
@@ -90,7 +86,6 @@
                     android:inputType="textPassword" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Quên mật khẩu -->
             <TextView
                 android:id="@+id/tvForgotPassword"
                 android:layout_width="wrap_content"
@@ -101,7 +96,6 @@
                 android:textColor="#303F9F"
                 android:textSize="14sp" />
 
-            <!-- Nút Đăng nhập -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogin"
                 android:layout_width="match_parent"
@@ -113,7 +107,6 @@
                 app:backgroundTint="#e8952f"
                 app:cornerRadius="12dp" />
 
-            <!-- Chuyển sang Đăng ký -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

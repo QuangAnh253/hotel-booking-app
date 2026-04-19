@@ -67,7 +67,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         tvGoRegister.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
-        
+
         tvForgotPassword.setOnClickListener(v -> startActivity(new Intent(this, ForgotPasswordActivity.class)));
     }
 
@@ -83,14 +83,12 @@ public class LoginActivity extends AppCompatActivity {
                         }
                         finish();
                     } else {
-                        // Trường hợp Auth có nhưng Firestore không có (lỗi dữ liệu)
                         Toast.makeText(this, "Hồ sơ người dùng không tồn tại!", Toast.LENGTH_SHORT).show();
                         mAuth.signOut();
                         btnLogin.setEnabled(true);
                     }
                 })
                 .addOnFailureListener(e -> {
-                    // SỬA LỖI: Không cho vào Hub nếu lỗi Firestore, để tránh màn hình trắng
                     btnLogin.setEnabled(true);
                     Log.e(TAG, "Firestore Error: " + e.getMessage());
                     Toast.makeText(this, "Không thể kết nối cơ sở dữ liệu: " + e.getMessage(), Toast.LENGTH_LONG).show();

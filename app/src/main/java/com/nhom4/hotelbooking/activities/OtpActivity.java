@@ -31,7 +31,7 @@ public class OtpActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
     private String email, name, phone, uid, mode;
-    
+
     private CountDownTimer expiryTimer;
     private CountDownTimer resendTimer;
 
@@ -46,8 +46,8 @@ public class OtpActivity extends AppCompatActivity {
         initViews();
         getDataFromIntent();
         setupOtpInputs();
-        
-        startExpiryTimer(5 * 60 * 1000); 
+
+        startExpiryTimer(5 * 60 * 1000);
         startResendTimer(30 * 1000);
 
         btnVerifyOtp.setOnClickListener(v -> verifyOtp());
@@ -73,7 +73,7 @@ public class OtpActivity extends AppCompatActivity {
         name = getIntent().getStringExtra("name");
         phone = getIntent().getStringExtra("phone");
         uid = getIntent().getStringExtra("uid");
-        mode = getIntent().getStringExtra("mode"); 
+        mode = getIntent().getStringExtra("mode");
 
         if (email != null) {
             tvOtpDesc.setText("Vui lòng nhập mã xác thực được gửi về Email\n" + maskEmail(email));
@@ -148,9 +148,9 @@ public class OtpActivity extends AppCompatActivity {
         String newOtp = String.valueOf((int)(Math.random() * 900000) + 100000);
         db.collection("otp_codes").document(uid).update("code", newOtp, "expiry", System.currentTimeMillis() + 300000);
         String template = "reset_password".equals(mode) ? "template_resetpassword" : "template_otp_hotel";
-        
+
         EmailUtils.sendOtpEmail(email, newOtp, template);
-        
+
         startResendTimer(30000);
         startExpiryTimer(300000);
         Toast.makeText(this, "Đã gửi lại mã xác thực mới", Toast.LENGTH_SHORT).show();
@@ -164,7 +164,6 @@ public class OtpActivity extends AppCompatActivity {
         db.collection("otp_codes").document(uid).get().addOnSuccessListener(snapshot -> {
             if (snapshot.exists() && input.equals(snapshot.getString("code"))) {
                 if ("reset_password".equals(mode)) {
-                    // LUỒNG QUÊN MẬT KHẨU: Gửi link reset của Google
                     mAuth.sendPasswordResetEmail(email).addOnSuccessListener(unused -> {
                         Toast.makeText(this, "Xác minh thành công! Vui lòng kiểm tra hộp thư (bao gồm cả thư rác) để đặt lại mật khẩu.", Toast.LENGTH_LONG).show();
                         db.collection("otp_codes").document(uid).delete();
@@ -172,7 +171,6 @@ public class OtpActivity extends AppCompatActivity {
                         finish();
                     });
                 } else {
-                    // LUỒNG ĐĂNG KÝ: Lưu user vào Firestore
                     User user = new User(uid, name, email, phone, Constants.ROLE_USER);
                     db.collection(Constants.COLLECTION_USERS).document(uid).set(user).addOnSuccessListener(u -> {
                         db.collection("otp_codes").document(uid).delete();

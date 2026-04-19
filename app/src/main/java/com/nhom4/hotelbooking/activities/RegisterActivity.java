@@ -68,12 +68,10 @@ public class RegisterActivity extends AppCompatActivity {
                 return;
             }
 
-            // Tạo tài khoản Firebase Auth trước
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnSuccessListener(authResult -> {
                         String uid = authResult.getUser().getUid();
-                        
-                        // Chuyển sang màn hình TRUNG GIAN (PreOtpActivity)
+
                         Intent intent = new Intent(RegisterActivity.this, PreOtpActivity.class);
                         intent.putExtra("email", email);
                         intent.putExtra("name", name);

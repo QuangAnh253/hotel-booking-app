@@ -30,7 +30,7 @@ public class PreOtpActivity extends AppCompatActivity {
         name = intent.getStringExtra("name");
         phone = intent.getStringExtra("phone");
         uid = intent.getStringExtra("uid");
-        mode = intent.getStringExtra("mode"); // "reset_password" hoặc null (đăng ký)
+        mode = intent.getStringExtra("mode");
 
         TextView tvDesc = findViewById(R.id.tvMaskedEmailDesc);
         if (email != null) {
@@ -58,12 +58,11 @@ public class PreOtpActivity extends AppCompatActivity {
 
         db.collection("otp_codes").document(uid).set(otpData)
                 .addOnSuccessListener(unused -> {
-                    // Sử dụng template tương ứng
-                    String templateId = (mode != null && mode.equals("reset_password")) 
+                    String templateId = (mode != null && mode.equals("reset_password"))
                                         ? "template_resetpassword" : "template_otp_hotel";
-                    
+
                     sendCustomOtpEmail(email, otpCode, templateId);
-                    
+
                     Toast.makeText(this, "Mã OTP đã được gửi", Toast.LENGTH_SHORT).show();
 
                     Intent intent = new Intent(PreOtpActivity.this, OtpActivity.class);

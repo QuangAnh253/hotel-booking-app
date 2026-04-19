@@ -45,10 +45,9 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
 
         Glide.with(holder.itemView.getContext())
                 .load(news.getImageUrl())
-                .placeholder(R.mipmap.ic_launcher)
+                .placeholder(R.mipmap.logo_hotel)
                 .into(holder.imgNews);
 
-        // Sự kiện click để xem chi tiết
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), NewsDetailActivity.class);
             intent.putExtra(Constants.EXTRA_NEWS, news);

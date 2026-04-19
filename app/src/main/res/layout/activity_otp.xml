@@ -68,7 +68,6 @@
                 android:textColor="#D32F2F"
                 android:textSize="14sp" />
 
-            <!-- Layout cho 6 ô nhập mã -->
             <LinearLayout
                 android:id="@+id/layoutOtpInputs"
                 android:layout_width="match_parent"
